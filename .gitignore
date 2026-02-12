@@ -1,0 +1,5 @@
+config.json
+node_modules/
+.env
+databases/*.json
+!databases/.gitkeep
