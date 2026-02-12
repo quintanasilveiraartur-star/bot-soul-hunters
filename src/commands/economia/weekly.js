@@ -1,5 +1,5 @@
-const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, formatTimeLeft, random } = require('../../utils/helpers');
+const { economy, inventory } = require('../../utils/db');
+const { createEmbed, addServerFooter, makeKey, formatTimeLeft, random, getCoinMultiplier, cleanExpiredItems } = require('../../utils/helpers');
 
 const WEEKLY_COOLDOWN = 7 * 24 * 60 * 60 * 1000; // 7 dias
 const MIN_REWARD = 3000;
@@ -40,17 +40,31 @@ module.exports = {
     }
 
     const reward = random(MIN_REWARD, MAX_REWARD);
-    userData.coins += reward;
+    
+    // Verifica boost de coins
+    let userInventory = inventory.get(key) || [];
+    userInventory = cleanExpiredItems(userInventory);
+    inventory.set(key, userInventory);
+    
+    const multiplier = getCoinMultiplier(userInventory);
+    const rewardBase = reward;
+    const finalReward = Math.floor(reward * multiplier);
+    
+    userData.coins += finalReward;
     userData.lastWeekly = now;
 
     economy.set(key, userData);
 
-    const embed = createEmbed(
-      'Weekly Coletado',
-      `Você ganhou **${reward} coins**!\n\n` +
-      `**Saldo total:** ${userData.coins} coins\n\n` +
-      'Volte semana que vem pra pegar mais!'
-    );
+    let description = `Você ganhou **${finalReward} coins**!\n\n`;
+    
+    if (multiplier > 1) {
+      description += `💰 *Bonus: +${Math.floor(rewardBase * (multiplier - 1))} coins (${Math.floor((multiplier - 1) * 100)}%)*\n\n`;
+    }
+    
+    description += `**Saldo total:** ${userData.coins} coins\n\n` +
+      'Volte semana que vem pra pegar mais!';
+
+    const embed = createEmbed('Weekly Coletado', description);
     addServerFooter(embed, interaction.guild);
 
     await interaction.reply({ embeds: [embed] });

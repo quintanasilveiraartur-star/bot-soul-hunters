@@ -1,5 +1,5 @@
-const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, random } = require('../../utils/helpers');
+const { economy, inventory } = require('../../utils/db');
+const { createEmbed, addServerFooter, makeKey, random, getCoinMultiplier, cleanExpiredItems } = require('../../utils/helpers');
 const { getTrabalho } = require('../../utils/contentData');
 
 module.exports = {
@@ -38,20 +38,32 @@ module.exports = {
     }
 
     const trabalho = getTrabalho();
-    const ganho = random(trabalho.min, trabalho.max);
+    let ganho = random(trabalho.min, trabalho.max);
+    
+    // Verifica boost de coins
+    let userInventory = inventory.get(key) || [];
+    userInventory = cleanExpiredItems(userInventory);
+    inventory.set(key, userInventory);
+    
+    const multiplier = getCoinMultiplier(userInventory);
+    const ganhoBase = ganho;
+    ganho = Math.floor(ganho * multiplier);
     
     userData.coins += ganho;
     userData.lastWork = now;
     economy.set(key, userData);
 
-    const embed = createEmbed(
-      'Trabalho Realizado',
-      `Você trabalhou como **${trabalho.nome}** ${trabalho.emoji}\n\n` +
+    let description = `Você trabalhou como **${trabalho.nome}** ${trabalho.emoji}\n\n` +
       '```yaml\n' +
-      `Ganhou: ${ganho} coins\n` +
-      `Saldo Total: ${userData.coins} coins\n` +
-      '```'
-    );
+      `Ganhou: ${ganho} coins\n`;
+    
+    if (multiplier > 1) {
+      description += `Bonus: +${Math.floor(ganhoBase * (multiplier - 1))} coins (${Math.floor((multiplier - 1) * 100)}%)\n`;
+    }
+    
+    description += `Saldo Total: ${userData.coins} coins\n` + '```';
+
+    const embed = createEmbed('Trabalho Realizado', description);
     embed.setThumbnail(interaction.user.displayAvatarURL());
     addServerFooter(embed, interaction.guild);
 

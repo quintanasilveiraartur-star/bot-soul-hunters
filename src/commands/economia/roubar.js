@@ -1,5 +1,5 @@
-const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError } = require('../../utils/helpers');
+const { economy, inventory } = require('../../utils/db');
+const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, hasActiveItem, cleanExpiredItems } = require('../../utils/helpers');
 
 module.exports = {
   data: {
@@ -42,9 +42,26 @@ module.exports = {
       return replyError(interaction, 'Este usuário não tem coins suficientes para roubar (mínimo: 100)');
     }
 
-    const chance = Math.random();
+    // Verifica proteção anti-roubo do alvo
+    let targetInventory = inventory.get(targetKey) || [];
+    targetInventory = cleanExpiredItems(targetInventory);
+    inventory.set(targetKey, targetInventory);
     
-    if (chance < 0.4) {
+    if (hasActiveItem(targetInventory, 'anti_theft')) {
+      return replyError(interaction, 'Este usuário está protegido contra roubos! 🛡️');
+    }
+
+    // Verifica boost de sorte do ladrão
+    let userInventory = inventory.get(userKey) || [];
+    userInventory = cleanExpiredItems(userInventory);
+    inventory.set(userKey, userInventory);
+    
+    const luckBoost = getLuckBoost(userInventory);
+    const baseChance = 0.4;
+    const chance = Math.random();
+    const successChance = baseChance + luckBoost;
+    
+    if (chance < successChance) {
       // Sucesso
       const roubado = Math.floor(targetData.coins * 0.2);
       
@@ -56,8 +73,9 @@ module.exports = {
 
       const embed = createEmbed(
         'Roubo Bem-Sucedido',
-        `Você roubou **${roubado} coins** de ${target.username}\n\n` +
-        `**Seu saldo:** ${userData.coins} coins`
+        `Você roubou **${roubado} coins** de ${target.username} 💰\n\n` +
+        `**Seu saldo:** ${userData.coins} coins` +
+        (luckBoost > 0 ? '\n\n🍀 *Amuleto da Sorte ativo!*' : '')
       );
       addServerFooter(embed, interaction.guild);
 

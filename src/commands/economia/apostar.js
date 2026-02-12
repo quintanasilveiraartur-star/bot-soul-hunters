@@ -1,5 +1,5 @@
-const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError } = require('../../utils/helpers');
+const { economy, inventory } = require('../../utils/db');
+const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, cleanExpiredItems } = require('../../utils/helpers');
 
 module.exports = {
   data: {
@@ -31,13 +31,24 @@ module.exports = {
       return replyError(interaction, 'Você não tem coins suficientes');
     }
 
+    // Verifica boost de sorte
+    let userInventory = inventory.get(key) || [];
+    userInventory = cleanExpiredItems(userInventory);
+    inventory.set(key, userInventory);
+    
+    const luckBoost = getLuckBoost(userInventory);
     const chance = Math.random();
     let resultado, ganho;
     
-    if (chance < 0.45) {
+    // Chances base: 45% ganhar, 45% perder, 10% jackpot
+    // Com sorte: 60% ganhar, 30% perder, 10% jackpot
+    const winChance = 0.45 + luckBoost;
+    const loseChance = 0.90 - luckBoost;
+    
+    if (chance < winChance) {
       ganho = quantia;
       resultado = 'Você ganhou';
-    } else if (chance < 0.90) {
+    } else if (chance < loseChance) {
       ganho = -quantia;
       resultado = 'Você perdeu';
     } else {
@@ -55,7 +66,8 @@ module.exports = {
       `${ganho > 0 ? '+' : '-'} ${resultado}\n` +
       `${ganho > 0 ? '+' : '-'} ${Math.abs(ganho)} coins\n` +
       '```\n' +
-      `**Saldo atual:** \`${userData.coins} coins\``
+      `**Saldo atual:** \`${userData.coins} coins\`` +
+      (luckBoost > 0 ? '\n\n🍀 *Amuleto da Sorte ativo!*' : '')
     );
     embed.setThumbnail(interaction.user.displayAvatarURL());
     addServerFooter(embed, interaction.guild);

@@ -106,6 +106,68 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Verifica se usuário tem item ativo no inventário
+function hasActiveItem(inventory, itemId) {
+  if (!inventory || !Array.isArray(inventory)) return false;
+  
+  const now = Date.now();
+  const item = inventory.find(i => i.id === itemId);
+  
+  if (!item) return false;
+  
+  // Se tem duração, verifica se ainda está válido
+  if (item.expires) {
+    return item.expires > now;
+  }
+  
+  // Item permanente
+  return true;
+}
+
+// Remove itens expirados do inventário
+function cleanExpiredItems(inventory) {
+  if (!inventory || !Array.isArray(inventory)) return [];
+  
+  const now = Date.now();
+  return inventory.filter(item => {
+    if (!item.expires) return true;
+    return item.expires > now;
+  });
+}
+
+// Calcula multiplicador de coins baseado nos itens
+function getCoinMultiplier(inventory) {
+  let multiplier = 1.0;
+  
+  if (hasActiveItem(inventory, 'coin_boost')) {
+    multiplier += 0.5; // +50%
+  }
+  
+  return multiplier;
+}
+
+// Calcula multiplicador de XP baseado nos itens
+function getXPMultiplier(inventory) {
+  let multiplier = 1.0;
+  
+  if (hasActiveItem(inventory, 'xp_boost')) {
+    multiplier += 1.0; // +100% (2x)
+  }
+  
+  return multiplier;
+}
+
+// Calcula boost de sorte baseado nos itens
+function getLuckBoost(inventory) {
+  let boost = 0;
+  
+  if (hasActiveItem(inventory, 'lucky_charm')) {
+    boost += 0.15; // +15% de chance
+  }
+  
+  return boost;
+}
+
 module.exports = {
   createEmbed,
   addServerFooter,
@@ -117,5 +179,10 @@ module.exports = {
   replySuccess,
   random,
   randomChoice,
-  sleep
+  sleep,
+  hasActiveItem,
+  cleanExpiredItems,
+  getCoinMultiplier,
+  getXPMultiplier,
+  getLuckBoost
 };
