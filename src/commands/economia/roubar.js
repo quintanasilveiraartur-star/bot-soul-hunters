@@ -48,7 +48,16 @@ module.exports = {
     inventory.set(targetKey, targetInventory);
     
     if (hasActiveItem(targetInventory, 'anti_theft')) {
-      return replyError(interaction, 'Este usuário está protegido contra roubos! 🛡️');
+      const embed = createEmbed(
+        '🛡️ Proteção Ativa',
+        `> **${target.username}** está protegido contra roubos!\n\n` +
+        `**• Item:** Proteção Anti-Roubo\n` +
+        `**• Status:** Ativo\n\n` +
+        `> Você não pode roubar este usuário enquanto a proteção estiver ativa.`
+      );
+      embed.setColor('#FF0000');
+      addServerFooter(embed, interaction.guild);
+      return interaction.reply({ embeds: [embed], ephemeral: true });
     }
 
     // Verifica boost de sorte do ladrão
