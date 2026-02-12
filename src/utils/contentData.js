@@ -166,17 +166,17 @@ const BASE_CONTENT = {
     { 
       id: 'anti_theft',
       name: 'Proteção Anti-Roubo', 
-      price: 3000,
-      description: 'Protege contra roubos por 14 dias',
-      duration: 14 * 24 * 60 * 60 * 1000,
+      price: 5000,
+      description: 'Protege contra roubos por 7 dias',
+      duration: 7 * 24 * 60 * 60 * 1000,
       emoji: '🛡️'
     },
     { 
       id: 'xp_boost',
       name: 'Multiplicador 2x XP', 
-      price: 4000,
-      description: 'Ganhe XP em dobro por 7 dias',
-      duration: 7 * 24 * 60 * 60 * 1000,
+      price: 12000,
+      description: 'Ganhe XP em dobro por 3 dias',
+      duration: 3 * 24 * 60 * 60 * 1000,
       emoji: '⚡'
     },
     { 
@@ -197,9 +197,9 @@ const BASE_CONTENT = {
     { 
       id: 'lucky_charm',
       name: 'Amuleto da Sorte', 
-      price: 4500,
-      description: 'Aumenta chances em apostas e roubos por 7 dias',
-      duration: 7 * 24 * 60 * 60 * 1000,
+      price: 20000,
+      description: 'Aumenta chances em apostas e roubos por 1 dia',
+      duration: 1 * 24 * 60 * 60 * 1000,
       emoji: '🍀'
     },
     { 
