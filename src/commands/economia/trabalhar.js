@@ -1,4 +1,5 @@
-const { economy, inventory } = require('../../utils/db');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { economy, inventory, notifications } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey, random, getCoinMultiplier, cleanExpiredItems } = require('../../utils/helpers');
 const { getTrabalho } = require('../../utils/contentData');
 
@@ -29,12 +30,25 @@ module.exports = {
       const embed = createEmbed(
         'Cooldown Ativo',
         `> Você está cansado! Descanse um pouco.\n\n` +
-        `- **Tempo restante:** \`${minutosRestantes}m ${segundosRestantes}s\``,
+        `**• Tempo restante:** \`${minutosRestantes}m ${segundosRestantes}s\``,
         '#ff9900'
       );
-      addServerFooter(embed, interaction.guild);
       
-      return interaction.reply({ embeds: [embed], ephemeral: true });
+      // Botão de notificação
+      const notifKey = `${key}_trabalhar`;
+      const notifData = notifications.get(notifKey);
+      const isActive = notifData && notifData.active;
+      
+      const button = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId(`notify_trabalhar_${interaction.user.id}`)
+            .setLabel(isActive ? '🔔 Notificação Ativa' : '🔕 Ativar Notificação')
+            .setStyle(isActive ? ButtonStyle.Success : ButtonStyle.Secondary)
+        );
+      
+      addServerFooter(embed, interaction.guild);
+      return interaction.reply({ embeds: [embed], components: [button], ephemeral: true });
     }
 
     const trabalho = getTrabalho();
@@ -65,8 +79,21 @@ module.exports = {
 
     const embed = createEmbed('Trabalho Realizado', description);
     embed.setThumbnail(interaction.user.displayAvatarURL());
+    
+    // Botão de notificação
+    const notifKey = `${key}_trabalhar`;
+    const notifData = notifications.get(notifKey);
+    const isActive = notifData && notifData.active;
+    
+    const button = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId(`notify_trabalhar_${interaction.user.id}`)
+          .setLabel(isActive ? '🔔 Notificação Ativa' : '🔕 Ativar Notificação')
+          .setStyle(isActive ? ButtonStyle.Success : ButtonStyle.Secondary)
+      );
+    
     addServerFooter(embed, interaction.guild);
-
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed], components: [button] });
   }
 };

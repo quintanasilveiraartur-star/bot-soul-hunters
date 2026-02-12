@@ -1,10 +1,11 @@
-const { economy, inventory } = require('../../utils/db');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { economy, inventory, notifications } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, cleanExpiredItems } = require('../../utils/helpers');
 
 module.exports = {
   data: {
     name: 'apostar',
-    description: 'Aposta coins',
+    description: 'Aposta coins (cooldown: 5 minutos)',
     options: [{
       name: 'quantia',
       description: 'Quantia para apostar',
@@ -24,7 +25,41 @@ module.exports = {
     let userData = economy.get(key);
 
     if (!userData) {
-      userData = { coins: 0, lastDaily: 0, lastWeekly: 0 };
+      userData = { coins: 0, lastDaily: 0, lastWeekly: 0, lastBet: 0 };
+    }
+
+    // Verifica cooldown de 5 minutos
+    const now = Date.now();
+    const cooldown = 5 * 60 * 1000; // 5 minutos
+    const lastBet = userData.lastBet || 0;
+    const timeLeft = cooldown - (now - lastBet);
+
+    if (timeLeft > 0) {
+      const minutosRestantes = Math.ceil(timeLeft / 60000);
+      const segundosRestantes = Math.ceil((timeLeft % 60000) / 1000);
+      
+      const embed = createEmbed(
+        'Cooldown Ativo',
+        `> Aguarde um pouco antes de apostar novamente!\n\n` +
+        `**• Tempo restante:** \`${minutosRestantes}m ${segundosRestantes}s\``,
+        '#ff9900'
+      );
+      
+      // Botão de notificação
+      const notifKey = `${key}_apostar`;
+      const notifData = notifications.get(notifKey);
+      const isActive = notifData && notifData.active;
+      
+      const button = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId(`notify_apostar_${interaction.user.id}`)
+            .setLabel(isActive ? '🔔 Notificação Ativa' : '🔕 Ativar Notificação')
+            .setStyle(isActive ? ButtonStyle.Success : ButtonStyle.Secondary)
+        );
+      
+      addServerFooter(embed, interaction.guild);
+      return interaction.reply({ embeds: [embed], components: [button], ephemeral: true });
     }
 
     if (userData.coins < quantia) {
@@ -57,6 +92,7 @@ module.exports = {
     }
     
     userData.coins += ganho;
+    userData.lastBet = now;
     economy.set(key, userData);
 
     const embed = createEmbed(
@@ -70,8 +106,21 @@ module.exports = {
       (luckBoost > 0 ? '\n\n🍀 *Amuleto da Sorte ativo!*' : '')
     );
     embed.setThumbnail(interaction.user.displayAvatarURL());
+    
+    // Botão de notificação
+    const notifKey = `${key}_apostar`;
+    const notifData = notifications.get(notifKey);
+    const isActive = notifData && notifData.active;
+    
+    const button = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId(`notify_apostar_${interaction.user.id}`)
+          .setLabel(isActive ? '🔔 Notificação Ativa' : '🔕 Ativar Notificação')
+          .setStyle(isActive ? ButtonStyle.Success : ButtonStyle.Secondary)
+      );
+    
     addServerFooter(embed, interaction.guild);
-
-    await interaction.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed], components: [button] });
   }
 };

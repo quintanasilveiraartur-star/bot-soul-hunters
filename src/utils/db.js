@@ -92,6 +92,7 @@ const mutes = new Database('mutes.json');
 const marriages = new Database('marriage.json');
 const inventory = new Database('inventory.json');
 const afk = new Database('afk.json');
+const notifications = new Database('notifications.json');
 
 module.exports = {
   guilds,
@@ -102,5 +103,6 @@ module.exports = {
   marriages,
   inventory,
   afk,
+  notifications,
   Database
 };

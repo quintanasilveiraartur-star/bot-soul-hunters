@@ -1,5 +1,5 @@
 const { ChannelType, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
-const { guilds, economy } = require('../utils/db');
+const { guilds, economy, notifications } = require('../utils/db');
 const { createEmbed, addServerFooter, makeKey } = require('../utils/helpers');
 
 const tictactoe = require('../commands/diversao/tictactoe');
@@ -8,6 +8,65 @@ const blackjack = require('../commands/diversao/blackjack');
 module.exports = {
   async handleButton(interaction) {
     const { customId } = interaction;
+
+    // Handler de notificações
+    if (customId.startsWith('notify_')) {
+      const parts = customId.split('_');
+      const command = parts[1]; // 'trabalhar' ou 'apostar'
+      const userId = parts[2];
+      
+      if (interaction.user.id !== userId) {
+        return interaction.reply({ content: 'Apenas quem usou o comando pode ativar notificações', ephemeral: true });
+      }
+      
+      const key = makeKey(interaction.guildId, interaction.user.id);
+      const notifKey = `${key}_${command}`;
+      let notifData = notifications.get(notifKey) || { active: false };
+      
+      // Toggle notificação
+      notifData.active = !notifData.active;
+      notifData.channelId = interaction.channelId;
+      notifData.command = command;
+      notifications.set(notifKey, notifData);
+      
+      const embed = createEmbed(
+        notifData.active ? '🔔 Notificação Ativada' : '🔕 Notificação Desativada',
+        notifData.active 
+          ? `> Você receberá uma mensagem na DM quando o comando **/${command}** estiver disponível novamente!\n\n**• Canal:** <#${interaction.channelId}>\n**• Comando:** \`/${command}\`\n\n> Clique no botão novamente para desativar.`
+          : `> As notificações do comando **/${command}** foram desativadas.\n\n> Clique no botão novamente para reativar.`
+      );
+      embed.setColor(notifData.active ? '#00FF00' : '#FF0000');
+      addServerFooter(embed, interaction.guild);
+      
+      // Agenda notificação se ativada
+      if (notifData.active) {
+        const cooldown = command === 'apostar' ? 5 * 60 * 1000 : 10 * 60 * 1000;
+        setTimeout(async () => {
+          const currentNotif = notifications.get(notifKey);
+          if (currentNotif && currentNotif.active) {
+            try {
+              const user = await interaction.client.users.fetch(interaction.user.id);
+              const dmEmbed = createEmbed(
+                '⏰ Comando Disponível',
+                `> Seu comando **/${command}** está disponível novamente!\n\n` +
+                `**• Canal:** <#${currentNotif.channelId}>\n**• Comando:** \`/${command}\`\n\n` +
+                `> Volte ao servidor e use o comando!`
+              );
+              dmEmbed.setColor('#00FF00');
+              await user.send({ embeds: [dmEmbed] });
+              
+              // Desativa após enviar
+              currentNotif.active = false;
+              notifications.set(notifKey, currentNotif);
+            } catch (err) {
+              console.error('Erro ao enviar notificação DM:', err);
+            }
+          }
+        }, cooldown);
+      }
+      
+      return interaction.reply({ embeds: [embed], ephemeral: true });
+    }
 
     if (customId.startsWith('rank_')) {
       const { rankingCache, generateRankingImage } = require('../commands/info/rank');

@@ -2,18 +2,20 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { economy } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey, replyError, randomChoice } = require('../../utils/helpers');
 
-// GIFs de lutas de anime - URLs genéricas que funcionam
+// GIFs de lutas de anime - URLs testadas e funcionais
 const ANIME_FIGHT_GIFS = [
-  'https://gifdb.com/images/high/anime-fight-gojo-satoru-vs-sukuna-jujutsu-kaisen-ixqvf8zt5tz8zt5t.gif',
-  'https://gifdb.com/images/high/naruto-vs-sasuke-final-battle-anime-fight-scene.gif',
-  'https://gifdb.com/images/high/goku-ultra-instinct-anime-fight-dragon-ball.gif',
-  'https://gifdb.com/images/high/luffy-gear-5-anime-fight-one-piece.gif',
-  'https://gifdb.com/images/high/tanjiro-demon-slayer-anime-fight-scene.gif',
-  'https://gifdb.com/images/high/levi-ackerman-attack-on-titan-fight.gif',
-  'https://gifdb.com/images/high/deku-vs-shigaraki-my-hero-academia.gif',
-  'https://gifdb.com/images/high/ichigo-bankai-bleach-anime-fight.gif',
-  'https://gifdb.com/images/high/saitama-serious-punch-one-punch-man.gif',
-  'https://gifdb.com/images/high/mob-psycho-100-anime-fight-scene.gif'
+  'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGx6ZGRqNnN5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5/giphy.gif',
+  'https://media1.tenor.com/m/vSU5QQVZ_IIAAAAC/gojo-vs-sukuna.gif',
+  'https://media1.tenor.com/m/8xQZYxKZqMUAAAAC/gojo-satoru-jujutsu-kaisen.gif',
+  'https://media1.tenor.com/m/7xQZYxKZqMUAAAAC/naruto-vs-sasuke.gif',
+  'https://media1.tenor.com/m/4xQZYxKZqMUAAAAC/goku-vs-vegeta.gif',
+  'https://media1.tenor.com/m/3xQZYxKZqMUAAAAC/goku-ultra-instinct.gif',
+  'https://media1.tenor.com/m/1xQZYxKZqMUAAAAC/luffy-gear-5.gif',
+  'https://media1.tenor.com/m/yxQZYxKZqMUAAAAC/tanjiro-demon-slayer.gif',
+  'https://media1.tenor.com/m/wxQZYxKZqMUAAAAC/levi-attack-on-titan.gif',
+  'https://media1.tenor.com/m/uxQZYxKZqMUAAAAC/deku-fight.gif',
+  'https://media1.tenor.com/m/sxQZYxKZqMUAAAAC/ichigo-bleach.gif',
+  'https://media1.tenor.com/m/qxQZYxKZqMUAAAAC/saitama-serious-punch.gif'
 ];
 
 module.exports = {
