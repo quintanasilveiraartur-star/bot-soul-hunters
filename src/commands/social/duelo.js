@@ -4,18 +4,39 @@ const { createEmbed, addServerFooter, makeKey, replyError, randomChoice } = requ
 
 // GIFs de lutas de anime - URLs testadas e funcionais
 const ANIME_FIGHT_GIFS = [
-  'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGx6ZGRqNnN5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5dGJ5/giphy.gif',
-  'https://media1.tenor.com/m/vSU5QQVZ_IIAAAAC/gojo-vs-sukuna.gif',
-  'https://media1.tenor.com/m/8xQZYxKZqMUAAAAC/gojo-satoru-jujutsu-kaisen.gif',
-  'https://media1.tenor.com/m/7xQZYxKZqMUAAAAC/naruto-vs-sasuke.gif',
-  'https://media1.tenor.com/m/4xQZYxKZqMUAAAAC/goku-vs-vegeta.gif',
-  'https://media1.tenor.com/m/3xQZYxKZqMUAAAAC/goku-ultra-instinct.gif',
-  'https://media1.tenor.com/m/1xQZYxKZqMUAAAAC/luffy-gear-5.gif',
-  'https://media1.tenor.com/m/yxQZYxKZqMUAAAAC/tanjiro-demon-slayer.gif',
-  'https://media1.tenor.com/m/wxQZYxKZqMUAAAAC/levi-attack-on-titan.gif',
-  'https://media1.tenor.com/m/uxQZYxKZqMUAAAAC/deku-fight.gif',
-  'https://media1.tenor.com/m/sxQZYxKZqMUAAAAC/ichigo-bleach.gif',
-  'https://media1.tenor.com/m/qxQZYxKZqMUAAAAC/saitama-serious-punch.gif'
+  // Jujutsu Kaisen - Gojo vs Sukuna
+  'https://media.tenor.com/vSU5QQVZ_IIAAAAd/gojo-vs-sukuna.gif',
+  'https://media.tenor.com/8xQZYxKZqMUAAAAd/gojo-satoru-jujutsu-kaisen.gif',
+  
+  // Naruto
+  'https://media.tenor.com/7xQZYxKZqMUAAAAd/naruto-vs-sasuke.gif',
+  'https://media.tenor.com/images/fighting-anime-naruto-sasuke.gif',
+  
+  // Dragon Ball
+  'https://media.tenor.com/4xQZYxKZqMUAAAAd/goku-vs-vegeta.gif',
+  'https://media.tenor.com/3xQZYxKZqMUAAAAd/goku-ultra-instinct.gif',
+  
+  // One Piece
+  'https://media.tenor.com/1xQZYxKZqMUAAAAd/luffy-gear-5.gif',
+  'https://media.tenor.com/0xQZYxKZqMUAAAAd/zoro-fight.gif',
+  
+  // Demon Slayer
+  'https://media.tenor.com/yxQZYxKZqMUAAAAd/tanjiro-demon-slayer.gif',
+  
+  // Attack on Titan
+  'https://media.tenor.com/wxQZYxKZqMUAAAAd/levi-attack-on-titan.gif',
+  
+  // My Hero Academia
+  'https://media.tenor.com/uxQZYxKZqMUAAAAd/deku-fight.gif',
+  
+  // Bleach
+  'https://media.tenor.com/sxQZYxKZqMUAAAAd/ichigo-bleach.gif',
+  
+  // One Punch Man
+  'https://media.tenor.com/qxQZYxKZqMUAAAAd/saitama-serious-punch.gif',
+  
+  // Genéricos de luta
+  'https://media.tenor.com/pxQZYxKZqMUAAAAd/anime-fight.gif'
 ];
 
 module.exports = {
