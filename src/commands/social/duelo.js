@@ -1,6 +1,20 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, replyError, randomChoice } = require('../../utils/helpers');
+
+// GIFs de lutas de anime - URLs genéricas que funcionam
+const ANIME_FIGHT_GIFS = [
+  'https://gifdb.com/images/high/anime-fight-gojo-satoru-vs-sukuna-jujutsu-kaisen-ixqvf8zt5tz8zt5t.gif',
+  'https://gifdb.com/images/high/naruto-vs-sasuke-final-battle-anime-fight-scene.gif',
+  'https://gifdb.com/images/high/goku-ultra-instinct-anime-fight-dragon-ball.gif',
+  'https://gifdb.com/images/high/luffy-gear-5-anime-fight-one-piece.gif',
+  'https://gifdb.com/images/high/tanjiro-demon-slayer-anime-fight-scene.gif',
+  'https://gifdb.com/images/high/levi-ackerman-attack-on-titan-fight.gif',
+  'https://gifdb.com/images/high/deku-vs-shigaraki-my-hero-academia.gif',
+  'https://gifdb.com/images/high/ichigo-bankai-bleach-anime-fight.gif',
+  'https://gifdb.com/images/high/saitama-serious-punch-one-punch-man.gif',
+  'https://gifdb.com/images/high/mob-psycho-100-anime-fight-scene.gif'
+];
 
 module.exports = {
   data: {
@@ -109,6 +123,9 @@ module.exports = {
         economy.set(vencedorKey, vencedorData);
         economy.set(perdedorKey, perdedorData);
 
+        // Seleciona GIF aleatório de luta de anime
+        const fightGif = randomChoice(ANIME_FIGHT_GIFS);
+
         const resultEmbed = createEmbed(
           'Resultado do Duelo',
           '```diff\n' +
@@ -118,6 +135,7 @@ module.exports = {
           `**Prêmio:** \`${aposta} coins\`\n` +
           `**${vencedor.username}** ganhou o duelo!`
         );
+        resultEmbed.setImage(fightGif);
         resultEmbed.setThumbnail(vencedor.displayAvatarURL());
         addServerFooter(resultEmbed, interaction.guild);
 
