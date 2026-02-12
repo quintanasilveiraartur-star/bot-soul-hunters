@@ -1,5 +1,5 @@
 const { economy, xp, marriages, inventory } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, hasActiveItem, cleanExpiredItems } = require('../../utils/helpers');
 
 const TITLES = [
   'Novato', 'Iniciante', 'Aprendiz', 'Experiente', 'Veterano',
@@ -43,13 +43,32 @@ module.exports = {
       }
     }
 
-    const userInventory = inventory.get(key) || [];
-    const titleIndex = Math.min(Math.floor(xpData.level / 5), TITLES.length - 1);
-    const title = TITLES[titleIndex];
+    let userInventory = inventory.get(key) || [];
+    userInventory = cleanExpiredItems(userInventory);
+    inventory.set(key, userInventory);
+    
+    // Verifica se tem título personalizado
+    let title = TITLES[Math.min(Math.floor(xpData.level / 5), TITLES.length - 1)];
+    const hasCustomTitle = hasActiveItem(userInventory, 'custom_title');
+    
+    if (hasCustomTitle) {
+      const titleItem = userInventory.find(i => i.id === 'custom_title');
+      if (titleItem && titleItem.customTitle) {
+        title = `👑 ${titleItem.customTitle}`;
+      }
+    }
+    
+    // Verifica badges especiais
+    const hasVIP = hasActiveItem(userInventory, 'vip_badge');
+    const hasGlow = hasActiveItem(userInventory, 'name_glow');
+    
+    let badges = '';
+    if (hasVIP) badges += '⭐ ';
+    if (hasGlow) badges += '✨ ';
 
     const embed = createEmbed(
       'Perfil de Usuário',
-      `**${user.username}**\n\n` +
+      `**${badges}${user.username}${badges ? '' : ''}**\n\n` +
       '```yaml\n' +
       `Título: ${title}\n` +
       `Nível: ${xpData.level}\n` +
@@ -61,6 +80,12 @@ module.exports = {
       `**Conta criada:** <t:${Math.floor(user.createdTimestamp / 1000)}:R>`
     );
     embed.setThumbnail(user.displayAvatarURL({ size: 256 }));
+    
+    // Cor especial se tiver custom color
+    if (hasActiveItem(userInventory, 'custom_color')) {
+      embed.setColor('#FF69B4');
+    }
+    
     addServerFooter(embed, interaction.guild);
 
     await interaction.reply({ embeds: [embed] });

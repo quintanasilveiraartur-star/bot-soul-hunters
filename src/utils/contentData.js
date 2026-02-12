@@ -167,16 +167,16 @@ const BASE_CONTENT = {
       id: 'anti_theft',
       name: 'Proteção Anti-Roubo', 
       price: 3000,
-      description: 'Protege contra roubos por 7 dias',
-      duration: 7 * 24 * 60 * 60 * 1000,
+      description: 'Protege contra roubos por 14 dias',
+      duration: 14 * 24 * 60 * 60 * 1000,
       emoji: '🛡️'
     },
     { 
       id: 'xp_boost',
       name: 'Multiplicador 2x XP', 
       price: 4000,
-      description: 'Ganhe XP em dobro por 3 dias',
-      duration: 3 * 24 * 60 * 60 * 1000,
+      description: 'Ganhe XP em dobro por 7 dias',
+      duration: 7 * 24 * 60 * 60 * 1000,
       emoji: '⚡'
     },
     { 
@@ -190,30 +190,30 @@ const BASE_CONTENT = {
       id: 'coin_boost',
       name: 'Multiplicador 1.5x Coins', 
       price: 3500,
-      description: 'Ganhe 50% mais coins por 5 dias',
-      duration: 5 * 24 * 60 * 60 * 1000,
+      description: 'Ganhe 50% mais coins por 10 dias',
+      duration: 10 * 24 * 60 * 60 * 1000,
       emoji: '💰'
     },
     { 
       id: 'lucky_charm',
       name: 'Amuleto da Sorte', 
       price: 4500,
-      description: 'Aumenta chances em apostas e roubos por 3 dias',
-      duration: 3 * 24 * 60 * 60 * 1000,
+      description: 'Aumenta chances em apostas e roubos por 7 dias',
+      duration: 7 * 24 * 60 * 60 * 1000,
       emoji: '🍀'
     },
     { 
       id: 'name_glow',
       name: 'Nome Brilhante', 
       price: 6000,
-      description: 'Seu nome aparece com efeito especial',
+      description: 'Seu nome aparece com efeito especial (permanente)',
       emoji: '✨'
     },
     { 
       id: 'custom_title',
       name: 'Título Personalizado', 
       price: 7000,
-      description: 'Crie seu próprio título único',
+      description: 'Crie seu próprio título único (permanente)',
       emoji: '👑'
     }
   ]
