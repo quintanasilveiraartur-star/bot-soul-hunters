@@ -38,6 +38,20 @@ module.exports = {
       targetData = { coins: 0, lastDaily: 0, lastWeekly: 0 };
     }
 
+    // Verifica se o ladrão tem coins suficientes
+    if (userData.coins < 500) {
+      const embed = createEmbed(
+        'Saldo Insuficiente',
+        `> Você precisa ter no mínimo **500 coins** para roubar!\n\n` +
+        `**• Seu saldo:** \`${userData.coins}\` coins\n` +
+        `**• Necessário:** \`500\` coins\n` +
+        `**• Faltam:** \`${500 - userData.coins}\` coins`
+      );
+      embed.setColor('#FF0000');
+      addServerFooter(embed, interaction.guild);
+      return interaction.reply({ embeds: [embed], ephemeral: true });
+    }
+
     if (targetData.coins < 100) {
       return replyError(interaction, 'Este usuário não tem coins suficientes para roubar (mínimo: 100)');
     }
