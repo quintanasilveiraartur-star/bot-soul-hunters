@@ -30,7 +30,7 @@ module.exports = {
     // Verifica se está tentando doar para si mesmo
     if (recipient.id === donor.id) {
       const errorEmbed = createEmbed(
-        '❌ Erro',
+        'Erro',
         '> Você não pode doar coins para si mesmo!'
       );
       addServerFooter(errorEmbed, interaction.guild);
@@ -40,7 +40,7 @@ module.exports = {
     // Verifica se está tentando doar para um bot
     if (recipient.bot) {
       const errorEmbed = createEmbed(
-        '❌ Erro',
+        'Erro',
         '> Você não pode doar coins para bots!'
       );
       addServerFooter(errorEmbed, interaction.guild);
@@ -59,7 +59,7 @@ module.exports = {
     // Verifica se o doador tem coins suficientes
     if (donorData.coins < amount) {
       const errorEmbed = createEmbed(
-        '❌ Saldo Insuficiente',
+        'Saldo Insuficiente',
         `> Você não tem coins suficientes para doar!\n\n` +
         `**• Seu saldo:** \`${donorData.coins}\` coins\n` +
         `**• Tentou doar:** \`${amount}\` coins\n` +
@@ -89,12 +89,12 @@ module.exports = {
 
     // Mensagem de sucesso
     const successEmbed = createEmbed(
-      '✅ Doação Realizada',
+      'Doação Realizada',
       `**${donor.username}** doou **${amount}** coins para **${recipient.username}**!\n\n` +
-      `**📤 Doador: ${donor.username}**\n` +
+      `**Doador: ${donor.username}**\n` +
       `> • Tinha: \`${donorOldBalance}\` coins\n` +
       `> • Tem agora: \`${donorData.coins}\` coins\n\n` +
-      `**📥 Receptor: ${recipient.username}**\n` +
+      `**Receptor: ${recipient.username}**\n` +
       `> • Tinha: \`${recipientOldBalance}\` coins\n` +
       `> • Tem agora: \`${recipientData.coins}\` coins`
     );
