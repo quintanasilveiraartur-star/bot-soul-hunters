@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { economy, inventory, notifications } = require('../../utils/db');
+const { economy, inventory, notifications, forcedLosses } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, cleanExpiredItems } = require('../../utils/helpers');
 
 module.exports = {
@@ -72,23 +72,36 @@ module.exports = {
     inventory.set(key, userInventory);
     
     const luckBoost = getLuckBoost(userInventory);
-    const chance = Math.random();
+    
+    // Verifica se o usuário deve perder na próxima aposta
+    const shouldForceLoss = forcedLosses.has(interaction.user.id);
+    
     let resultado, ganho;
     
-    // Chances base: 45% ganhar, 45% perder, 10% jackpot
-    // Com sorte: 60% ganhar, 30% perder, 10% jackpot
-    const winChance = 0.45 + luckBoost;
-    const loseChance = 0.90 - luckBoost;
-    
-    if (chance < winChance) {
-      ganho = quantia;
-      resultado = 'Você ganhou';
-    } else if (chance < loseChance) {
+    if (shouldForceLoss) {
+      // Força perda e remove da lista
       ganho = -quantia;
       resultado = 'Você perdeu';
+      forcedLosses.delete(interaction.user.id);
     } else {
-      ganho = quantia * 2;
-      resultado = 'JACKPOT! Você ganhou o dobro';
+      // Lógica normal de aposta
+      const chance = Math.random();
+      
+      // Chances base: 45% ganhar, 45% perder, 10% jackpot
+      // Com sorte: 60% ganhar, 30% perder, 10% jackpot
+      const winChance = 0.45 + luckBoost;
+      const loseChance = 0.90 - luckBoost;
+      
+      if (chance < winChance) {
+        ganho = quantia;
+        resultado = 'Você ganhou';
+      } else if (chance < loseChance) {
+        ganho = -quantia;
+        resultado = 'Você perdeu';
+      } else {
+        ganho = quantia * 2;
+        resultado = 'JACKPOT! Você ganhou o dobro';
+      }
     }
     
     userData.coins += ganho;
