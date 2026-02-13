@@ -9,6 +9,20 @@ module.exports = {
   },
 
   async execute(interaction) {
+    // IDs permitidos para acessar o painel
+    const allowedIds = [
+      '1206592150473547776',
+      '1242964674883092632',
+      '1191605109705162772'
+    ];
+    
+    if (!allowedIds.includes(interaction.user.id)) {
+      return interaction.reply({ 
+        content: 'Você não tem permissão para acessar o painel de administração.', 
+        ephemeral: true 
+      });
+    }
+    
     const config = guilds.get(interaction.guildId) || {};
     const uptime = process.uptime();
     const days = Math.floor(uptime / 86400);
