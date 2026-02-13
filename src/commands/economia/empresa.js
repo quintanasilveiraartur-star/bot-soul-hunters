@@ -5,37 +5,37 @@ const EMPRESAS = {
   banca_jornal: {
     name: 'Banca de Jornal',
     price: 5000,
-    income: 50,
+    income: 150,
     cooldown: 2 * 60 * 60 * 1000 // 2 horas
   },
   lanchonete: {
     name: 'Lanchonete',
     price: 15000,
-    income: 200,
+    income: 600,
     cooldown: 4 * 60 * 60 * 1000 // 4 horas
   },
   loja_roupas: {
     name: 'Loja de Roupas',
     price: 35000,
-    income: 500,
+    income: 1500,
     cooldown: 6 * 60 * 60 * 1000 // 6 horas
   },
   restaurante: {
     name: 'Restaurante',
     price: 75000,
-    income: 1200,
+    income: 3500,
     cooldown: 8 * 60 * 60 * 1000 // 8 horas
   },
   academia: {
     name: 'Academia',
     price: 150000,
-    income: 2500,
+    income: 7500,
     cooldown: 12 * 60 * 60 * 1000 // 12 horas
   },
   hotel: {
     name: 'Hotel',
     price: 300000,
-    income: 5500,
+    income: 16500,
     cooldown: 24 * 60 * 60 * 1000 // 24 horas
   }
 };
@@ -62,12 +62,12 @@ module.exports = {
         type: 3,
         required: false,
         choices: [
-          { name: 'Banca de Jornal - 5k (50 coins/2h)', value: 'banca_jornal' },
-          { name: 'Lanchonete - 15k (200 coins/4h)', value: 'lanchonete' },
-          { name: 'Loja de Roupas - 35k (500 coins/6h)', value: 'loja_roupas' },
-          { name: 'Restaurante - 75k (1.2k coins/8h)', value: 'restaurante' },
-          { name: 'Academia - 150k (2.5k coins/12h)', value: 'academia' },
-          { name: 'Hotel - 300k (5.5k coins/24h)', value: 'hotel' }
+          { name: 'Banca de Jornal - 5k (150 coins/2h)', value: 'banca_jornal' },
+          { name: 'Lanchonete - 15k (600 coins/4h)', value: 'lanchonete' },
+          { name: 'Loja de Roupas - 35k (1.5k coins/6h)', value: 'loja_roupas' },
+          { name: 'Restaurante - 75k (3.5k coins/8h)', value: 'restaurante' },
+          { name: 'Academia - 150k (7.5k coins/12h)', value: 'academia' },
+          { name: 'Hotel - 300k (16.5k coins/24h)', value: 'hotel' }
         ]
       }
     ]
