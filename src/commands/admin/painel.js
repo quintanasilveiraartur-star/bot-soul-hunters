@@ -28,7 +28,7 @@ module.exports = {
         `- **Tempo em funcionamento:** há ${days > 0 ? `${days} dias` : `${hours} horas`}\n` +
         `- **Desenvolvido por:** Soul Hunters Technology\n\n` +
         `**Sistema:**\n\n` +
-        `- **Status:** 🟢 Online\n` +
+        `- **Status:** Online\n` +
         `- **Servidores:** \`${interaction.client.guilds.cache.size}\`\n` +
         `- **Usuários:** \`${interaction.client.users.cache.size}\`\n` +
         `- **Comandos:** \`${interaction.client.commands.size}\``
