@@ -287,7 +287,7 @@ module.exports = {
       const welcomeChannel = config.welcomeChannel ? `<#${config.welcomeChannel}>` : '`Não configurado`';
       
       const embed = createEmbed(
-        '📋 Configuração de Logs',
+        'Configuração de Logs',
         `**Configure os canais de registro do servidor:**\n\n` +
         `**Status Atual:**\n` +
         `- **Canal de Logs:** ${logChannel}\n` +
@@ -346,10 +346,10 @@ module.exports = {
 
     if (customId === 'panel_security') {
       const config = guilds.get(interaction.guildId) || {};
-      const getStatus = (status) => status ? '🟢 Ativo' : '🔴 Inativo';
+      const getStatus = (status) => status ? 'Ativo' : 'Inativo';
       
       const embed = createEmbed(
-        '🛡️ Configuração de Segurança',
+        'Configuração de Segurança',
         `**Sistemas de proteção do servidor:**\n\n` +
         `**Status dos Sistemas:**\n` +
         `- **Anti-Raid:** ${getStatus(config.antiRaid)}\n` +
@@ -402,7 +402,7 @@ module.exports = {
           `- **Tempo em funcionamento:** há ${days > 0 ? `${days} dias` : `${hours} horas`}\n` +
           `- **Desenvolvido por:** Soul Hunters Technology\n\n` +
           `**Sistema:**\n\n` +
-          `- **Status:** 🟢 Online\n` +
+          `- **Status:** Online\n` +
           `- **Servidores:** \`${interaction.client.guilds.cache.size}\`\n` +
           `- **Usuários:** \`${interaction.client.users.cache.size}\`\n` +
           `- **Comandos:** \`${interaction.client.commands.size}\``
@@ -452,7 +452,7 @@ module.exports = {
     if (customId === 'panel_config') {
       const config = guilds.get(interaction.guildId) || {};
       const embed = createEmbed(
-        '⚙️ Configurações Gerais',
+        'Configurações Gerais',
         `**Configurações do servidor:**\n\n` +
         `- **Prefix:** \`/\` (Slash Commands)\n` +
         `- **Idioma:** \`Português (BR)\`\n` +
@@ -473,9 +473,9 @@ module.exports = {
       const memUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
       
       const embed = createEmbed(
-        '📊 Status do Sistema',
+        'Status do Sistema',
         `**Informações do bot:**\n\n` +
-        `- **Status:** 🟢 Online\n` +
+        `- **Status:** Online\n` +
         `- **Uptime:** \`${days}d ${hours}h ${minutes}m\`\n` +
         `- **Memória:** \`${memUsage} MB\`\n` +
         `- **Ping:** \`${interaction.client.ws.ping}ms\`\n` +
@@ -491,7 +491,7 @@ module.exports = {
 
     if (customId === 'panel_help') {
       const embed = createEmbed(
-        '❓ Ajuda',
+        'Ajuda',
         `**Como usar o painel:**\n\n` +
         `**📋 Logs**\n` +
         `Configure onde o bot enviará registros de ações e mensagens de boas-vindas.\n\n` +
@@ -510,7 +510,7 @@ module.exports = {
 
     if (customId === 'panel_info') {
       const embed = createEmbed(
-        'ℹ️ Informações do Bot',
+        'Informações do Bot',
         `**Soul Hunters Bot**\n\n` +
         `> Bot completo de gerenciamento, moderação, diversão e economia\n` +
         `> desenvolvido especialmente para o servidor Soul Hunters.\n\n` +
