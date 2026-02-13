@@ -197,9 +197,9 @@ const BASE_CONTENT = {
     { 
       id: 'lucky_charm',
       name: 'Amuleto da Sorte', 
-      price: 20000,
-      description: 'Aumenta chances em apostas e roubos por 1 dia',
-      duration: 1 * 24 * 60 * 60 * 1000,
+      price: 50000,
+      description: 'Aumenta chances em apostas e roubos por 2 horas',
+      duration: 2 * 60 * 60 * 1000,
       emoji: '🍀'
     },
     { 
