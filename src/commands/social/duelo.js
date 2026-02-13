@@ -1,43 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError, randomChoice } = require('../../utils/helpers');
-
-// GIFs de lutas de anime - URLs testadas e funcionais
-const ANIME_FIGHT_GIFS = [
-  // Jujutsu Kaisen - Gojo vs Sukuna
-  'https://media.tenor.com/vSU5QQVZ_IIAAAAd/gojo-vs-sukuna.gif',
-  'https://media.tenor.com/8xQZYxKZqMUAAAAd/gojo-satoru-jujutsu-kaisen.gif',
-  
-  // Naruto
-  'https://media.tenor.com/7xQZYxKZqMUAAAAd/naruto-vs-sasuke.gif',
-  'https://media.tenor.com/images/fighting-anime-naruto-sasuke.gif',
-  
-  // Dragon Ball
-  'https://media.tenor.com/4xQZYxKZqMUAAAAd/goku-vs-vegeta.gif',
-  'https://media.tenor.com/3xQZYxKZqMUAAAAd/goku-ultra-instinct.gif',
-  
-  // One Piece
-  'https://media.tenor.com/1xQZYxKZqMUAAAAd/luffy-gear-5.gif',
-  'https://media.tenor.com/0xQZYxKZqMUAAAAd/zoro-fight.gif',
-  
-  // Demon Slayer
-  'https://media.tenor.com/yxQZYxKZqMUAAAAd/tanjiro-demon-slayer.gif',
-  
-  // Attack on Titan
-  'https://media.tenor.com/wxQZYxKZqMUAAAAd/levi-attack-on-titan.gif',
-  
-  // My Hero Academia
-  'https://media.tenor.com/uxQZYxKZqMUAAAAd/deku-fight.gif',
-  
-  // Bleach
-  'https://media.tenor.com/sxQZYxKZqMUAAAAd/ichigo-bleach.gif',
-  
-  // One Punch Man
-  'https://media.tenor.com/qxQZYxKZqMUAAAAd/saitama-serious-punch.gif',
-  
-  // Genéricos de luta
-  'https://media.tenor.com/pxQZYxKZqMUAAAAd/anime-fight.gif'
-];
+const { createEmbed, addServerFooter, makeKey, replyError } = require('../../utils/helpers');
 
 module.exports = {
   data: {
@@ -146,8 +109,8 @@ module.exports = {
         economy.set(vencedorKey, vencedorData);
         economy.set(perdedorKey, perdedorData);
 
-        // Seleciona GIF aleatório de luta de anime
-        const fightGif = randomChoice(ANIME_FIGHT_GIFS);
+        // GIF de luta de anime (Gojo vs Sukuna - Jujutsu Kaisen)
+        const fightGif = 'https://tenor.com/view/jujutsu-kaisen-jjk-sukuna-gojo-mahogara-gif-4420703113752501151';
 
         const resultEmbed = createEmbed(
           'Resultado do Duelo',
