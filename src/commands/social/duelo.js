@@ -128,7 +128,7 @@ module.exports = {
         economy.set(perdedorKey, perdedorData);
 
         // GIF de luta de anime (Gojo vs Sukuna - Jujutsu Kaisen)
-        const fightGif = 'https://media.tenor.com/Ej9Q-AqkdBUAAAAC/jujutsu-kaisen-jjk.gif';
+        const fightGif = 'https://media.tenor.com/YJle4g7QhfUAAAAd/gojo-vs-sukuna-gojo-vs-sukuna-hands.gif';
 
         const resultEmbed = createEmbed(
           'Resultado do Duelo',
