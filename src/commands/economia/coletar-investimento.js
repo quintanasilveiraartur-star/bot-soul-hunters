@@ -1,10 +1,13 @@
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder } = require('discord.js');
 const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError, random } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, replyError } = require('../../utils/helpers');
+const { CRYPTOS, getCurrentPrices, getCryptoHistory } = require('../../utils/cryptoMarket');
+const { generateCryptoChart } = require('../../utils/cryptoChart');
 
 module.exports = {
   data: {
     name: 'coletar-investimento',
-    description: 'Coleta o retorno do seu investimento'
+    description: 'Analisa e coleta seus investimentos em criptomoedas'
   },
 
   async execute(interaction) {
@@ -15,61 +18,61 @@ module.exports = {
       userData = { coins: 0, lastDaily: 0, lastWeekly: 0 };
     }
 
-    // Verifica se tem investimento
-    if (!userData.investment) {
-      return replyError(interaction, 'Você não tem nenhum investimento ativo');
+    if (!userData.cryptoInvestments || userData.cryptoInvestments.length === 0) {
+      return replyError(interaction, 'Você não tem investimentos ativos');
     }
 
-    // Verifica se o tempo passou
-    if (userData.investment.endTime > Date.now()) {
-      const timeLeft = userData.investment.endTime - Date.now();
-      const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
-      const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
-      
-      const embed = createEmbed(
-        'Investimento em Andamento',
-        `> Seu investimento ainda não está pronto!\n\n` +
-        `**- Valor investido:** \`${userData.investment.amount}\` coins\n` +
-        `**- Tempo restante:** \`${hoursLeft}h ${minutesLeft}m\`\n\n` +
-        `> Aguarde mais um pouco para coletar.`
-      );
-      embed.setColor('#FFA500');
-      addServerFooter(embed, interaction.guild);
-      return interaction.reply({ embeds: [embed], ephemeral: true });
+    const prices = getCurrentPrices();
+    let totalInvested = 0;
+    let totalCurrent = 0;
+    let investmentInfo = '';
+
+    for (const inv of userData.cryptoInvestments) {
+      const crypto = CRYPTOS[inv.symbol];
+      const currentPrice = prices[inv.symbol];
+      const currentValue = (inv.amount / inv.buyPrice) * currentPrice;
+      const profit = currentValue - inv.amount;
+      const profitPercent = ((currentValue - inv.amount) / inv.amount) * 100;
+
+      totalInvested += inv.amount;
+      totalCurrent += currentValue;
+
+      const profitSign = profit >= 0 ? '+' : '';
+      const profitColor = profit >= 0 ? '📈' : '📉';
+
+      investmentInfo += `**${crypto.name} (${inv.symbol})**\n`;
+      investmentInfo += `> Investido: \`${inv.amount}\` coins\n`;
+      investmentInfo += `> Valor atual: \`${Math.floor(currentValue)}\` coins\n`;
+      investmentInfo += `> Lucro: ${profitSign}\`${Math.floor(profit)}\` coins (${profitSign}${profitPercent.toFixed(2)}%) ${profitColor}\n\n`;
     }
 
-    // Calcula retorno (50% a 100% de lucro, ou 20% de chance de perder 30%)
-    const investedAmount = userData.investment.amount;
-    const chance = Math.random();
-    let returnAmount, profit, result;
-
-    if (chance < 0.2) {
-      // Perdeu 30%
-      returnAmount = Math.floor(investedAmount * 0.7);
-      profit = returnAmount - investedAmount;
-      result = 'perdeu';
-    } else {
-      // Ganhou entre 50% e 100%
-      const multiplier = 1.5 + (Math.random() * 0.5);
-      returnAmount = Math.floor(investedAmount * multiplier);
-      profit = returnAmount - investedAmount;
-      result = 'ganhou';
-    }
-
-    userData.coins += returnAmount;
-    delete userData.investment;
-    economy.set(key, userData);
+    const totalProfit = totalCurrent - totalInvested;
+    const totalProfitPercent = ((totalCurrent - totalInvested) / totalInvested) * 100;
 
     const embed = createEmbed(
-      'Investimento Coletado',
-      `> Seu investimento foi resgatado!\n\n` +
-      `**- Valor investido:** \`${investedAmount}\` coins\n` +
-      `**- Retorno:** \`${returnAmount}\` coins\n` +
-      `**- ${result === 'ganhou' ? 'Lucro' : 'Prejuízo'}:** \`${Math.abs(profit)}\` coins\n` +
-      `**- Saldo atual:** \`${userData.coins}\` coins`
+      'Seus Investimentos',
+      investmentInfo +
+      `**Total**\n` +
+      `> Investido: \`${Math.floor(totalInvested)}\` coins\n` +
+      `> Valor atual: \`${Math.floor(totalCurrent)}\` coins\n` +
+      `> Lucro total: \`${Math.floor(totalProfit)}\` coins (${totalProfitPercent.toFixed(2)}%)\n\n` +
+      `> Use os botões abaixo para coletar tudo ou ver gráficos.`
     );
-    embed.setColor(result === 'ganhou' ? '#00FF00' : '#FF0000');
+    embed.setColor(totalProfit >= 0 ? '#00FF00' : '#FF0000');
     addServerFooter(embed, interaction.guild);
-    await interaction.reply({ embeds: [embed] });
+
+    const buttons = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId(`collect_all_${interaction.user.id}`)
+          .setLabel('Coletar Tudo')
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setCustomId(`view_charts_${interaction.user.id}`)
+          .setLabel('Ver Gráficos')
+          .setStyle(ButtonStyle.Primary)
+      );
+
+    await interaction.reply({ embeds: [embed], components: [buttons] });
   }
 };

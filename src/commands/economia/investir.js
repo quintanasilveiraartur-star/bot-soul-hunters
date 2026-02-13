@@ -1,21 +1,16 @@
+const { ActionRowBuilder, StringSelectMenuBuilder, AttachmentBuilder } = require('discord.js');
 const { economy } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey, replyError } = require('../../utils/helpers');
+const { CRYPTOS, getCurrentPrices, getCryptoHistory, getPriceChange } = require('../../utils/cryptoMarket');
+const { generateCryptoChart } = require('../../utils/cryptoChart');
 
 module.exports = {
   data: {
     name: 'investir',
-    description: 'Investe coins e recebe retorno após 2 horas',
-    options: [{
-      name: 'quantia',
-      description: 'Quantia para investir (mínimo: 100)',
-      type: 4,
-      required: true,
-      minValue: 100
-    }]
+    description: 'Investe em criptomoedas'
   },
 
   async execute(interaction) {
-    const quantia = interaction.options.getInteger('quantia');
     const key = makeKey(interaction.guildId, interaction.user.id);
     let userData = economy.get(key);
 
@@ -23,50 +18,44 @@ module.exports = {
       userData = { coins: 0, lastDaily: 0, lastWeekly: 0 };
     }
 
-    // Verifica se já tem investimento ativo
-    if (userData.investment && userData.investment.endTime > Date.now()) {
-      const timeLeft = userData.investment.endTime - Date.now();
-      const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
-      const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+    const prices = getCurrentPrices();
+    
+    // Cria embed com mercado
+    let marketInfo = '**Mercado de Criptomoedas**\n\n';
+    
+    for (const [symbol, crypto] of Object.entries(CRYPTOS)) {
+      const price = prices[symbol];
+      const change = getPriceChange(symbol);
+      const changeEmoji = change >= 0 ? '📈' : '📉';
+      const changeSign = change >= 0 ? '+' : '';
       
-      const embed = createEmbed(
-        'Investimento Ativo',
-        `> Você já tem um investimento em andamento!\n\n` +
-        `**- Valor investido:** \`${userData.investment.amount}\` coins\n` +
-        `**- Tempo restante:** \`${hoursLeft}h ${minutesLeft}m\`\n\n` +
-        `> Aguarde o investimento terminar para fazer outro.`
-      );
-      embed.setColor('#FFA500');
-      addServerFooter(embed, interaction.guild);
-      return interaction.reply({ embeds: [embed], ephemeral: true });
+      marketInfo += `**${crypto.name} (${symbol})**\n`;
+      marketInfo += `> Preço: \`${price}\` coins\n`;
+      marketInfo += `> Variação: ${changeSign}${change.toFixed(2)}% ${changeEmoji}\n\n`;
     }
-
-    if (userData.coins < quantia) {
-      return replyError(interaction, 'Você não tem coins suficientes para investir');
-    }
-
-    // Desconta o valor
-    userData.coins -= quantia;
-    
-    // Cria o investimento (2 horas)
-    const endTime = Date.now() + (2 * 60 * 60 * 1000);
-    userData.investment = {
-      amount: quantia,
-      endTime: endTime
-    };
-    
-    economy.set(key, userData);
 
     const embed = createEmbed(
-      'Investimento Realizado',
-      `> Você investiu **${quantia} coins** com sucesso!\n\n` +
-      `**- Valor investido:** \`${quantia}\` coins\n` +
-      `**- Retorno em:** \`2 horas\`\n` +
-      `**- Retorno esperado:** \`${Math.floor(quantia * 1.5)}\` a \`${Math.floor(quantia * 2)}\` coins\n\n` +
-      `> Use \`/coletar-investimento\` após 2 horas para resgatar!`
+      'Investir em Criptomoedas',
+      marketInfo + 
+      `**Seu saldo:** \`${userData.coins}\` coins\n\n` +
+      `> Selecione uma criptomoeda abaixo para ver o gráfico e investir.`
     );
-    embed.setColor('#00FF00');
+    embed.setColor('#FFD700');
     addServerFooter(embed, interaction.guild);
-    await interaction.reply({ embeds: [embed] });
+
+    const selectMenu = new StringSelectMenuBuilder()
+      .setCustomId(`crypto_select_${interaction.user.id}`)
+      .setPlaceholder('Selecione uma criptomoeda')
+      .addOptions(
+        Object.entries(CRYPTOS).map(([symbol, crypto]) => ({
+          label: `${crypto.name} (${symbol})`,
+          description: `${prices[symbol]} coins - ${getPriceChange(symbol).toFixed(2)}%`,
+          value: symbol
+        }))
+      );
+
+    const row = new ActionRowBuilder().addComponents(selectMenu);
+
+    await interaction.reply({ embeds: [embed], components: [row] });
   }
 };

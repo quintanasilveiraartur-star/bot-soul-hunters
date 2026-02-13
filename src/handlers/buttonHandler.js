@@ -1,6 +1,7 @@
 const { ChannelType, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const { guilds, economy, notifications } = require('../utils/db');
 const { createEmbed, addServerFooter, makeKey } = require('../utils/helpers');
+const { handleInvest, handleCollectAll, handleViewCharts } = require('./cryptoHandler');
 
 const tictactoe = require('../commands/diversao/tictactoe');
 const blackjack = require('../commands/diversao/blackjack');
@@ -8,6 +9,22 @@ const blackjack = require('../commands/diversao/blackjack');
 module.exports = {
   async handleButton(interaction) {
     const { customId } = interaction;
+
+    // Handlers de investimento em cripto
+    if (customId.startsWith('invest_')) {
+      const parts = customId.split('_');
+      const symbol = parts[1];
+      const amount = parseInt(parts[2]);
+      return handleInvest(interaction, symbol, amount);
+    }
+
+    if (customId.startsWith('collect_all_')) {
+      return handleCollectAll(interaction);
+    }
+
+    if (customId.startsWith('view_charts_')) {
+      return handleViewCharts(interaction);
+    }
 
     // Handler de notificações
     if (customId.startsWith('notify_')) {

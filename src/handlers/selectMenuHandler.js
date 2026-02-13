@@ -1,9 +1,15 @@
 const { guilds } = require('../utils/db');
 const { createEmbed, addServerFooter } = require('../utils/helpers');
+const { handleCryptoSelect } = require('./cryptoHandler');
 
 module.exports = {
   async handleSelectMenu(interaction) {
     const { customId, values } = interaction;
+
+    // Handler de seleção de criptomoeda
+    if (customId.startsWith('crypto_select_')) {
+      return handleCryptoSelect(interaction, values[0]);
+    }
 
     // Configurar canal de logs
     if (customId === 'set_log_channel') {
