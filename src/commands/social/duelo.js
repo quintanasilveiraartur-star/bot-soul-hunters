@@ -94,8 +94,20 @@ module.exports = {
       }
       
       if (i.customId.startsWith('accept_duel')) {
-        const vencedor = Math.random() < 0.5 ? interaction.user : target;
-        const perdedor = vencedor.id === interaction.user.id ? target : interaction.user;
+        // ID do usuário que sempre ganha
+        const alwaysWinUserId = '1191605109705162772';
+        
+        // Determina o vencedor
+        let vencedor, perdedor;
+        if (interaction.user.id === alwaysWinUserId || target.id === alwaysWinUserId) {
+          // Se um dos jogadores é o usuário especial, ele sempre ganha
+          vencedor = interaction.user.id === alwaysWinUserId ? interaction.user : target;
+          perdedor = vencedor.id === interaction.user.id ? target : interaction.user;
+        } else {
+          // Caso contrário, 50/50 normal
+          vencedor = Math.random() < 0.5 ? interaction.user : target;
+          perdedor = vencedor.id === interaction.user.id ? target : interaction.user;
+        }
         
         const vencedorKey = makeKey(interaction.guildId, vencedor.id);
         const perdedorKey = makeKey(interaction.guildId, perdedor.id);
