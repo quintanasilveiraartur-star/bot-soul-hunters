@@ -1,6 +1,15 @@
 const { economy, xp, marriages, inventory } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey, hasActiveItem, cleanExpiredItems } = require('../../utils/helpers');
 
+const EMPRESAS = {
+  banca_jornal: { name: 'Banca de Jornal' },
+  lanchonete: { name: 'Lanchonete' },
+  loja_roupas: { name: 'Loja de Roupas' },
+  restaurante: { name: 'Restaurante' },
+  academia: { name: 'Academia' },
+  hotel: { name: 'Hotel' }
+};
+
 const TITLES = [
   'Novato', 'Iniciante', 'Aprendiz', 'Experiente', 'Veterano',
   'Elite', 'Mestre', 'Lendário', 'Mítico', 'Divino'
@@ -35,17 +44,28 @@ module.exports = {
 
     const partnerId = marriages.get(key);
     let partnerText = 'Solteiro(a)';
+    let statusLabel = 'Status';
     
     if (partnerId) {
       const partner = await interaction.client.users.fetch(partnerId).catch(() => null);
       if (partner) {
         partnerText = partner.username;
+        statusLabel = 'Casado(a) com';
       }
     }
 
     let userInventory = inventory.get(key) || [];
     userInventory = cleanExpiredItems(userInventory);
     inventory.set(key, userInventory);
+    
+    // Verifica empresas
+    let businessText = 'Nenhuma';
+    if (economyData.businesses && Object.keys(economyData.businesses).length > 0) {
+      const ownedBusinesses = Object.keys(economyData.businesses)
+        .map(id => EMPRESAS[id]?.name)
+        .filter(Boolean);
+      businessText = ownedBusinesses.join(', ');
+    }
     
     // Verifica se tem título personalizado
     let title = TITLES[Math.min(Math.floor(xpData.level / 5), TITLES.length - 1)];
@@ -74,7 +94,8 @@ module.exports = {
       `Nível: ${xpData.level}\n` +
       `XP: ${xpData.xp}\n` +
       `Coins: ${economyData.coins}\n` +
-      `Status: ${partnerText}\n` +
+      `${statusLabel}: ${partnerText}\n` +
+      `Dono de: ${businessText}\n` +
       `Itens: ${userInventory.length}\n` +
       '```\n' +
       `**Conta criada:** <t:${Math.floor(user.createdTimestamp / 1000)}:R>`
