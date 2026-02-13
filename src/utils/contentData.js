@@ -166,7 +166,7 @@ const BASE_CONTENT = {
     { 
       id: 'anti_theft',
       name: 'Proteção Anti-Roubo', 
-      price: 5000,
+      price: 10000,
       description: 'Protege contra roubos por 7 dias',
       duration: 7 * 24 * 60 * 60 * 1000,
       emoji: '🛡️'
