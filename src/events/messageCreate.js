@@ -184,9 +184,11 @@ module.exports = {
       if (newLevel > userData.level) {
         userData.level = newLevel;
         
-        // Mensagem de level up
+        // Mensagem de level up que se auto-deleta após 10 segundos
         await message.reply({
           content: `🎉 Parabéns ${message.author}! Você subiu para o **nível ${newLevel}**!`
+        }).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 10000);
         }).catch(() => {});
       }
     }
