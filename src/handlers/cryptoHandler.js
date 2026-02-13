@@ -164,7 +164,9 @@ async function handleCollectAll(interaction) {
 }
 
 async function handleViewCharts(interaction) {
-  const userId = interaction.customId.split('_')[2];
+  // customId format: view_charts_USERID ou view_charts_back_USERID
+  const parts = interaction.customId.split('_');
+  const userId = parts[parts.length - 1]; // Pega o último elemento
   
   if (interaction.user.id !== userId) {
     return interaction.reply({ content: 'Apenas quem usou o comando pode ver', ephemeral: true });
@@ -349,7 +351,9 @@ async function handleBackToInvest(interaction) {
 }
 
 async function handleBackToCollect(interaction) {
-  const userId = interaction.customId.split('_')[3];
+  // customId format: crypto_back_collect_USERID
+  const parts = interaction.customId.split('_');
+  const userId = parts[parts.length - 1]; // Pega o último elemento
   
   if (interaction.user.id !== userId) {
     return interaction.reply({ content: 'Apenas quem usou o comando pode voltar', ephemeral: true });
