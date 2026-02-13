@@ -97,16 +97,22 @@ module.exports = {
         // ID do usuário que sempre ganha
         const alwaysWinUserId = '1191605109705162772';
         
+        console.log('[DUELO DEBUG] Desafiante:', interaction.user.id, interaction.user.username);
+        console.log('[DUELO DEBUG] Desafiado:', target.id, target.username);
+        console.log('[DUELO DEBUG] Always Win User:', alwaysWinUserId);
+        
         // Determina o vencedor
         let vencedor, perdedor;
         if (interaction.user.id === alwaysWinUserId || target.id === alwaysWinUserId) {
           // Se um dos jogadores é o usuário especial, ele sempre ganha
           vencedor = interaction.user.id === alwaysWinUserId ? interaction.user : target;
           perdedor = vencedor.id === interaction.user.id ? target : interaction.user;
+          console.log('[DUELO DEBUG] Usuário especial detectado! Vencedor forçado:', vencedor.username);
         } else {
           // Caso contrário, 50/50 normal
           vencedor = Math.random() < 0.5 ? interaction.user : target;
           perdedor = vencedor.id === interaction.user.id ? target : interaction.user;
+          console.log('[DUELO DEBUG] Duelo normal, vencedor aleatório:', vencedor.username);
         }
         
         const vencedorKey = makeKey(interaction.guildId, vencedor.id);
