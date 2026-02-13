@@ -515,7 +515,7 @@ module.exports = {
         `> Bot completo de gerenciamento, moderação, diversão e economia\n` +
         `> desenvolvido especialmente para o servidor Soul Hunters.\n\n` +
         `**Recursos:**\n` +
-        `- 49 comandos disponíveis\n` +
+        `- 60 comandos disponíveis\n` +
         `- Sistema de economia e XP\n` +
         `- Mini-games interativos\n` +
         `- Moderação avançada\n` +
