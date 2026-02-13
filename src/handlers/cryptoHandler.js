@@ -50,7 +50,15 @@ async function handleCryptoSelect(interaction, symbol) {
         .setStyle(ButtonStyle.Success)
     );
 
-  await interaction.update({ embeds: [embed], files: [attachment], components: [buttons] });
+  const backButton = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(`crypto_back_${userId}`)
+        .setLabel('← Voltar')
+        .setStyle(ButtonStyle.Danger)
+    );
+
+  await interaction.update({ embeds: [embed], files: [attachment], components: [buttons, backButton] });
 }
 
 async function handleInvest(interaction, symbol, amount) {
@@ -191,12 +199,121 @@ async function handleViewCharts(interaction) {
   embed.setColor(profit >= 0 ? '#00FF00' : '#FF0000');
   addServerFooter(embed, interaction.guild);
 
-  await interaction.update({ embeds: [embed], files: [attachment], components: [] });
+  const backButton = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(`crypto_back_collect_${userId}`)
+        .setLabel('← Voltar')
+        .setStyle(ButtonStyle.Danger)
+    );
+
+  await interaction.update({ embeds: [embed], files: [attachment], components: [backButton] });
+}
+
+async function handleBackToInvest(interaction) {
+  const userId = interaction.customId.split('_')[2];
+  
+  if (interaction.user.id !== userId) {
+    return interaction.reply({ content: 'Apenas quem usou o comando pode voltar', ephemeral: true });
+  }
+
+  // Recarrega o menu de investir
+  const { StringSelectMenuBuilder } = require('discord.js');
+  const prices = getCurrentPrices();
+  
+  let description = '**Mercado de Criptomoedas**\n\n';
+  
+  for (const [symbol, crypto] of Object.entries(CRYPTOS)) {
+    description += `**${crypto.name} (${symbol})**\n`;
+    description += `- Preço: \`${prices[symbol]}\` coins\n`;
+    description += `- Volatilidade: ${crypto.volatility}%\n\n`;
+  }
+  
+  description += '> Selecione uma criptomoeda para ver o gráfico e investir.';
+
+  const embed = createEmbed('Investir em Criptomoedas', description);
+  embed.setColor('#FFD700');
+  addServerFooter(embed, interaction.guild);
+
+  const selectMenu = new StringSelectMenuBuilder()
+    .setCustomId(`crypto_select_${userId}`)
+    .setPlaceholder('Selecione uma criptomoeda')
+    .addOptions(
+      Object.entries(CRYPTOS).map(([symbol, crypto]) => ({
+        label: `${crypto.name} (${symbol})`,
+        description: `${prices[symbol]} coins - Volatilidade ${crypto.volatility}%`,
+        value: symbol
+      }))
+    );
+
+  const row = new ActionRowBuilder().addComponents(selectMenu);
+
+  await interaction.update({ embeds: [embed], components: [row], files: [] });
+}
+
+async function handleBackToCollect(interaction) {
+  const userId = interaction.customId.split('_')[3];
+  
+  if (interaction.user.id !== userId) {
+    return interaction.reply({ content: 'Apenas quem usou o comando pode voltar', ephemeral: true });
+  }
+
+  // Recarrega a lista de investimentos
+  const key = makeKey(interaction.guildId, interaction.user.id);
+  let userData = economy.get(key);
+
+  if (!userData || !userData.cryptoInvestments || userData.cryptoInvestments.length === 0) {
+    return interaction.reply({ content: 'Você não tem investimentos', ephemeral: true });
+  }
+
+  const prices = getCurrentPrices();
+  let description = '**Seus Investimentos**\n\n';
+  let totalValue = 0;
+  let totalProfit = 0;
+
+  for (const inv of userData.cryptoInvestments) {
+    const crypto = CRYPTOS[inv.symbol];
+    const currentPrice = prices[inv.symbol];
+    const currentValue = (inv.amount / inv.buyPrice) * currentPrice;
+    const profit = currentValue - inv.amount;
+    
+    totalValue += currentValue;
+    totalProfit += profit;
+
+    description += `**${crypto.name} (${inv.symbol})**\n`;
+    description += `- Investido: \`${inv.amount}\` coins\n`;
+    description += `- Valor atual: \`${Math.floor(currentValue)}\` coins\n`;
+    description += `- Lucro: \`${Math.floor(profit)}\` coins\n\n`;
+  }
+
+  description += `**Total**\n`;
+  description += `- Valor total: \`${Math.floor(totalValue)}\` coins\n`;
+  description += `- Lucro total: \`${Math.floor(totalProfit)}\` coins`;
+
+  const embed = createEmbed('Seus Investimentos', description);
+  embed.setColor(totalProfit >= 0 ? '#00FF00' : '#FF0000');
+  addServerFooter(embed, interaction.guild);
+
+  const buttons = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(`collect_all_${userId}`)
+        .setLabel('Coletar Tudo')
+        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder()
+        .setCustomId(`view_charts_${userId}`)
+        .setLabel('Ver Gráficos')
+        .setStyle(ButtonStyle.Primary)
+    );
+
+  await interaction.update({ embeds: [embed], components: [buttons], files: [] });
 }
 
 module.exports = {
   handleCryptoSelect,
   handleInvest,
   handleCollectAll,
-  handleViewCharts
+  handleViewCharts,
+  handleBackToInvest,
+  handleBackToCollect
 };
