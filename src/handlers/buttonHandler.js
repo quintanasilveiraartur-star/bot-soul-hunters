@@ -1,7 +1,7 @@
 const { ChannelType, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const { guilds, economy, notifications } = require('../utils/db');
 const { createEmbed, addServerFooter, makeKey } = require('../utils/helpers');
-const { handleInvest, handleCollectAll, handleViewCharts, handleBackToInvest, handleBackToCollect } = require('./cryptoHandler');
+const { handleInvest, handleCollectAll, handleViewCharts, handleViewSpecificChart, handleBackToInvest, handleBackToCollect } = require('./cryptoHandler');
 
 const tictactoe = require('../commands/diversao/tictactoe');
 const blackjack = require('../commands/diversao/blackjack');
@@ -23,6 +23,16 @@ module.exports = {
     }
 
     if (customId.startsWith('view_charts_')) {
+      return handleViewCharts(interaction);
+    }
+
+    if (customId.startsWith('view_chart_')) {
+      const parts = customId.split('_');
+      const symbol = parts[2];
+      return handleViewSpecificChart(interaction, symbol);
+    }
+
+    if (customId.startsWith('view_charts_back_')) {
       return handleViewCharts(interaction);
     }
 

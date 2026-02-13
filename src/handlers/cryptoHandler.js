@@ -177,32 +177,129 @@ async function handleViewCharts(interaction) {
     return interaction.reply({ content: 'Você não tem investimentos', ephemeral: true });
   }
 
-  // Gera gráfico do primeiro investimento
-  const inv = userData.cryptoInvestments[0];
-  const crypto = CRYPTOS[inv.symbol];
+  // Agrupa investimentos por símbolo
+  const investmentsBySymbol = {};
+  for (const inv of userData.cryptoInvestments) {
+    if (!investmentsBySymbol[inv.symbol]) {
+      investmentsBySymbol[inv.symbol] = [];
+    }
+    investmentsBySymbol[inv.symbol].push(inv);
+  }
+
   const prices = getCurrentPrices();
-  const history = getCryptoHistory(inv.symbol);
-  
-  const chartBuffer = generateCryptoChart(inv.symbol, history, prices[inv.symbol], crypto.name);
-  const attachment = new AttachmentBuilder(chartBuffer, { name: `${inv.symbol}_chart.png` });
+  let description = '**Selecione uma criptomoeda para ver o gráfico:**\n\n';
 
-  const currentValue = (inv.amount / inv.buyPrice) * prices[inv.symbol];
-  const profit = currentValue - inv.amount;
+  for (const [symbol, investments] of Object.entries(investmentsBySymbol)) {
+    const crypto = CRYPTOS[symbol];
+    let totalInvested = 0;
+    let totalValue = 0;
 
-  const embed = createEmbed(
-    `Gráfico - ${crypto.name}`,
-    `**- Investido:** \`${inv.amount}\` coins\n` +
-    `**- Valor atual:** \`${Math.floor(currentValue)}\` coins\n` +
-    `**- Lucro:** \`${Math.floor(profit)}\` coins`
-  );
-  embed.setImage(`attachment://${inv.symbol}_chart.png`);
-  embed.setColor(profit >= 0 ? '#00FF00' : '#FF0000');
+    for (const inv of investments) {
+      totalInvested += inv.amount;
+      const currentValue = (inv.amount / inv.buyPrice) * prices[symbol];
+      totalValue += currentValue;
+    }
+
+    const profit = totalValue - totalInvested;
+    description += `**${crypto.name} (${symbol})**\n`;
+    description += `- Investido: \`${totalInvested}\` coins\n`;
+    description += `- Valor atual: \`${Math.floor(totalValue)}\` coins\n`;
+    description += `- Lucro: \`${Math.floor(profit)}\` coins\n\n`;
+  }
+
+  const embed = createEmbed('Gráficos de Investimento', description);
+  embed.setColor('#FFD700');
   addServerFooter(embed, interaction.guild);
 
+  // Cria botões para cada criptomoeda
+  const { ButtonBuilder, ButtonStyle } = require('discord.js');
+  const buttons = [];
+  
+  for (const symbol of Object.keys(investmentsBySymbol)) {
+    const crypto = CRYPTOS[symbol];
+    buttons.push(
+      new ButtonBuilder()
+        .setCustomId(`view_chart_${symbol}_${userId}`)
+        .setLabel(crypto.name)
+        .setStyle(ButtonStyle.Primary)
+    );
+  }
+
+  const rows = [];
+  // Divide em linhas de até 5 botões
+  for (let i = 0; i < buttons.length; i += 5) {
+    rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
+  }
+
+  // Adiciona botão de voltar
   const backButton = new ActionRowBuilder()
     .addComponents(
       new ButtonBuilder()
         .setCustomId(`crypto_back_collect_${userId}`)
+        .setLabel('← Voltar')
+        .setStyle(ButtonStyle.Danger)
+    );
+  
+  rows.push(backButton);
+
+  await interaction.update({ embeds: [embed], components: rows, files: [] });
+}
+
+async function handleViewSpecificChart(interaction, symbol) {
+  const userId = interaction.customId.split('_')[3];
+  
+  if (interaction.user.id !== userId) {
+    return interaction.reply({ content: 'Apenas quem usou o comando pode ver', ephemeral: true });
+  }
+
+  const key = makeKey(interaction.guildId, interaction.user.id);
+  let userData = economy.get(key);
+
+  if (!userData || !userData.cryptoInvestments || userData.cryptoInvestments.length === 0) {
+    return interaction.reply({ content: 'Você não tem investimentos', ephemeral: true });
+  }
+
+  // Filtra investimentos dessa moeda
+  const investments = userData.cryptoInvestments.filter(inv => inv.symbol === symbol);
+  
+  if (investments.length === 0) {
+    return interaction.reply({ content: 'Você não tem investimentos nesta moeda', ephemeral: true });
+  }
+
+  const crypto = CRYPTOS[symbol];
+  const prices = getCurrentPrices();
+  const history = getCryptoHistory(symbol);
+  
+  const chartBuffer = generateCryptoChart(symbol, history, prices[symbol], crypto.name);
+  const attachment = new AttachmentBuilder(chartBuffer, { name: `${symbol}_chart.png` });
+
+  // Calcula totais
+  let totalInvested = 0;
+  let totalValue = 0;
+
+  for (const inv of investments) {
+    totalInvested += inv.amount;
+    const currentValue = (inv.amount / inv.buyPrice) * prices[symbol];
+    totalValue += currentValue;
+  }
+
+  const profit = totalValue - totalInvested;
+
+  const embed = createEmbed(
+    `Gráfico - ${crypto.name}`,
+    `**- Investido:** \`${totalInvested}\` coins\n` +
+    `**- Valor atual:** \`${Math.floor(totalValue)}\` coins\n` +
+    `**- Lucro:** \`${Math.floor(profit)}\` coins`
+  );
+  embed.setImage(`attachment://${symbol}_chart.png`);
+  embed.setColor(profit >= 0 ? '#00FF00' : '#FF0000');
+  addServerFooter(embed, interaction.guild);
+
+  const { ButtonBuilder, ButtonStyle } = require('discord.js');
+  const backButton = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(`view_charts_back_${userId}`)
         .setLabel('← Voltar')
         .setStyle(ButtonStyle.Danger)
     );
@@ -314,6 +411,7 @@ module.exports = {
   handleInvest,
   handleCollectAll,
   handleViewCharts,
+  handleViewSpecificChart,
   handleBackToInvest,
   handleBackToCollect
 };
