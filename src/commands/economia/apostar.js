@@ -53,7 +53,7 @@ module.exports = {
       const button = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId(`notify_apostar_${interaction.user.id}`)
+            .setCustomId(`notify_apostar`)
             .setLabel(isActive ? '🔔 Notificação Ativa' : '🔕 Ativar Notificação')
             .setStyle(isActive ? ButtonStyle.Success : ButtonStyle.Secondary)
         );
@@ -128,12 +128,12 @@ module.exports = {
     const button = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
-          .setCustomId(`notify_apostar_${interaction.user.id}`)
+          .setCustomId(`notify_apostar`)
           .setLabel(isActive ? '🔔 Notificação Ativa' : '🔕 Ativar Notificação')
           .setStyle(isActive ? ButtonStyle.Success : ButtonStyle.Secondary)
       );
     
     addServerFooter(embed, interaction.guild);
-    await interaction.reply({ embeds: [embed], components: [button] });
+    await interaction.reply({ embeds: [embed], components: [button], ephemeral: true });
   }
 };

@@ -48,11 +48,6 @@ module.exports = {
     if (customId.startsWith('notify_')) {
       const parts = customId.split('_');
       const command = parts[1]; // 'trabalhar' ou 'apostar'
-      const userId = parts[2];
-      
-      if (interaction.user.id !== userId) {
-        return interaction.reply({ content: 'Apenas quem usou o comando pode ativar notificações', ephemeral: true });
-      }
       
       const key = makeKey(interaction.guildId, interaction.user.id);
       const notifKey = `${key}_${command}`;
