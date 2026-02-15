@@ -40,6 +40,13 @@ for (const file of eventFiles) {
   }
 }
 
+// Inicia sistema de taxa diária
+const { scheduleDailyTax } = require('./src/handlers/dailyTaxHandler');
+client.once('ready', () => {
+  scheduleDailyTax(client);
+  console.log('💸 Sistema de taxa diária de custo de vida ativado!');
+});
+
 // Tratamento de erros não capturados
 process.on('unhandledRejection', error => {
   console.error('Erro não tratado:', error);

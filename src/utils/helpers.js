@@ -212,6 +212,27 @@ function checkDailyReset(userData) {
   }
 }
 
+// Cobra taxa diária de custo de vida (25% do saldo)
+function applyDailyLivingCost(userData) {
+  const now = Date.now();
+  const oneDayAgo = now - (24 * 60 * 60 * 1000);
+  
+  // Verifica se já cobrou hoje
+  if (!userData.lastLivingCostDate || userData.lastLivingCostDate < oneDayAgo) {
+    const livingCost = Math.floor(userData.coins * 0.25); // 25% do saldo
+    
+    if (livingCost > 0) {
+      userData.coins = Math.max(0, userData.coins - livingCost);
+      userData.lastLivingCostDate = now;
+      return { charged: true, amount: livingCost };
+    }
+    
+    userData.lastLivingCostDate = now;
+  }
+  
+  return { charged: false, amount: 0 };
+}
+
 module.exports = {
   createEmbed,
   addServerFooter,
@@ -231,5 +252,6 @@ module.exports = {
   getLuckBoost,
   getDailyTax,
   applyDailyTax,
-  checkDailyReset
+  checkDailyReset,
+  applyDailyLivingCost
 };

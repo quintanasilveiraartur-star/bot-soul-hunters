@@ -39,7 +39,25 @@
 - Iniciantes não são afetados
 - Milionários pagam até 60% de taxa
 
-### 2. VALORES REDUZIDOS ✅
+### 2. CUSTO DE VIDA DIÁRIO (NOVO!) ✅
+
+**Taxa fixa de 25% do saldo total cobrada a cada 24 horas:**
+
+```javascript
+// Cobrado automaticamente quando você usa qualquer comando de economia
+- Taxa: 25% do seu saldo atual
+- Frequência: Uma vez por dia
+- Exemplo: 10.000 coins → paga 2.500 coins
+- Exemplo: 1.000.000 coins → paga 250.000 coins
+```
+
+**Impacto:**
+- Força os jogadores a serem ativos
+- Impede acúmulo passivo infinito
+- Milionários perdem 25% por dia se não jogarem
+- Incentiva gastar coins em itens/empresas
+
+### 3. VALORES REDUZIDOS ✅
 
 **Trabalhar:** 100-500 → **50-300 coins** (-50%)
 **Daily:** 500-1000 → **300-600 coins** (-40%)
@@ -47,7 +65,7 @@
 **Crime:** 200-3000 → **100-1500 coins** (-50%)
 **Pescar:** 50-1000 → **25-500 coins** (-50%)
 
-### 3. CHANCES REDUZIDAS ✅
+### 4. CHANCES REDUZIDAS ✅
 
 **Apostas:**
 - Antes: 45% ganhar, 45% perder, 10% jackpot
