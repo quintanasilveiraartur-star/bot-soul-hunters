@@ -63,6 +63,12 @@ async function chargeDailyTax(client) {
 
 // Agenda a cobrança diária às 00:00 de São Paulo
 function scheduleDailyTax(client) {
+  // EXECUTA IMEDIATAMENTE NA PRIMEIRA VEZ (TESTE)
+  console.log('🔥 EXECUTANDO TAXA IMEDIATAMENTE (TESTE)...');
+  setTimeout(() => {
+    chargeDailyTax(client);
+  }, 5000); // 5 segundos após iniciar
+  
   // Calcula próximo horário 00:00 de São Paulo (UTC-3)
   function getNextMidnight() {
     const now = new Date();
