@@ -1,6 +1,8 @@
 const { economy } = require('../../utils/db');
 const { createEmbed, addServerFooter, makeKey } = require('../../utils/helpers');
 
+const MAX_BUSINESSES = 3; // Máximo de empresas por pessoa
+
 const EMPRESAS = {
   banca_jornal: {
     name: 'Banca de Jornal',
@@ -129,6 +131,21 @@ module.exports = {
           `**- Empresa:** ${empresa.name}`
         );
         embed.setColor('#FF0000');
+        addServerFooter(embed, interaction.guild);
+        return interaction.reply({ embeds: [embed], ephemeral: true });
+      }
+
+      // Verifica limite de empresas
+      const numEmpresas = Object.keys(userData.businesses).length;
+      if (numEmpresas >= MAX_BUSINESSES) {
+        const embed = createEmbed(
+          'Limite Atingido',
+          `> Você já possui o máximo de empresas!\n\n` +
+          `**- Limite:** ${MAX_BUSINESSES} empresas\n` +
+          `**- Suas empresas:** ${numEmpresas}\n\n` +
+          `> Gerencie melhor suas empresas atuais antes de expandir.`
+        );
+        embed.setColor('#FF9900');
         addServerFooter(embed, interaction.guild);
         return interaction.reply({ embeds: [embed], ephemeral: true });
       }

@@ -1,13 +1,13 @@
 const { economy, inventory } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, random } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, random, applyDailyTax } = require('../../utils/helpers');
 
 const PEIXES = [
-  { name: 'Sardinha', value: 50, rarity: 0.4 },
-  { name: 'Atum', value: 150, rarity: 0.3 },
-  { name: 'Salmão', value: 250, rarity: 0.15 },
-  { name: 'Peixe Dourado', value: 500, rarity: 0.1 },
-  { name: 'Peixe Lendário', value: 1000, rarity: 0.04 },
-  { name: 'Lixo', value: 10, rarity: 0.01 }
+  { name: 'Sardinha', value: 25, rarity: 0.4 },
+  { name: 'Atum', value: 75, rarity: 0.3 },
+  { name: 'Salmão', value: 125, rarity: 0.15 },
+  { name: 'Peixe Dourado', value: 250, rarity: 0.1 },
+  { name: 'Peixe Lendário', value: 500, rarity: 0.04 },
+  { name: 'Lixo', value: 5, rarity: 0.01 }
 ];
 
 module.exports = {
@@ -57,7 +57,11 @@ module.exports = {
       }
     }
 
-    userData.coins += peixe.value;
+    // Aplica taxa diária progressiva
+    const taxResult = applyDailyTax(userData, peixe.value);
+    const valorFinal = taxResult.finalGanho;
+    
+    userData.coins += valorFinal;
     userData.lastFish = now;
     economy.set(key, userData);
 
@@ -67,14 +71,23 @@ module.exports = {
     else if (peixe.value >= 150) rarityText = 'Incomum';
     else rarityText = 'Comum';
 
-    const embed = createEmbed(
-      'Pescaria',
-      `> Você pescou um **${peixe.name}**!\n\n` +
+    let description = `> Você pescou um **${peixe.name}**!\n\n` +
       `**- Peixe:** ${peixe.name}\n` +
       `**- Raridade:** ${rarityText}\n` +
-      `**- Valor:** \`${peixe.value}\` coins\n` +
-      `**- Saldo atual:** \`${userData.coins}\` coins`
-    );
+      `**- Valor:** \`${peixe.value}\` coins\n`;
+    
+    if (taxResult.taxAmount > 0) {
+      description += `**- Taxa:** \`-${taxResult.taxAmount}\` coins (${Math.floor(taxResult.taxPercent * 100)}%)\n`;
+      description += `**- Final:** \`${valorFinal}\` coins\n`;
+    }
+    
+    description += `**- Saldo atual:** \`${userData.coins}\` coins`;
+    
+    if (taxResult.taxPercent > 0) {
+      description += `\n\n💰 *Ganhos diários: ${userData.dailyEarnings.toLocaleString()} coins*`;
+    }
+    
+    const embed = createEmbed('Pescaria', description);
     
     if (peixe.value >= 500) embed.setColor('#FFD700');
     else if (peixe.value >= 250) embed.setColor('#9B59B6');

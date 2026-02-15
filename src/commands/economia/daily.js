@@ -1,9 +1,9 @@
 const { economy, inventory } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, formatTimeLeft, random, getCoinMultiplier, cleanExpiredItems } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, formatTimeLeft, random, getCoinMultiplier, cleanExpiredItems, applyDailyTax } = require('../../utils/helpers');
 
 const DAILY_COOLDOWN = 24 * 60 * 60 * 1000; // 24 horas
-const MIN_REWARD = 500;
-const MAX_REWARD = 1000;
+const MIN_REWARD = 300;
+const MAX_REWARD = 600;
 
 module.exports = {
   data: {
@@ -53,7 +53,11 @@ module.exports = {
     const rewardBase = reward;
     reward = Math.floor(reward * multiplier);
     
-    userData.coins += reward;
+    // Aplica taxa diária progressiva
+    const taxResult = applyDailyTax(userData, reward);
+    const rewardFinal = taxResult.finalGanho;
+    
+    userData.coins += rewardFinal;
     userData.lastDaily = now;
 
     economy.set(key, userData);
@@ -64,8 +68,17 @@ module.exports = {
       description += `💰 *Bonus: +${Math.floor(rewardBase * (multiplier - 1))} coins (${Math.floor((multiplier - 1) * 100)}%)*\n\n`;
     }
     
+    if (taxResult.taxAmount > 0) {
+      description += `📊 *Taxa: -${taxResult.taxAmount} coins (${Math.floor(taxResult.taxPercent * 100)}%)*\n`;
+      description += `✅ *Recebido: ${rewardFinal} coins*\n\n`;
+    }
+    
     description += `**Saldo total:** ${userData.coins} coins\n\n` +
       'Volte amanhã pra pegar mais!';
+    
+    if (taxResult.taxPercent > 0) {
+      description += `\n\n💰 *Ganhos diários: ${userData.dailyEarnings.toLocaleString()} coins*`;
+    }
 
     const embed = createEmbed('Daily Coletado', description);
     addServerFooter(embed, interaction.guild);

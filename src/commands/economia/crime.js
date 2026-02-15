@@ -1,13 +1,13 @@
 const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, random } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, random, applyDailyTax } = require('../../utils/helpers');
 
 const CRIMES = [
-  { name: 'Assaltar uma loja', min: 200, max: 800, risk: 0.5 },
-  { name: 'Roubar um carro', min: 500, max: 1500, risk: 0.6 },
-  { name: 'Invadir uma casa', min: 300, max: 1000, risk: 0.55 },
-  { name: 'Hackear um banco', min: 1000, max: 3000, risk: 0.7 },
-  { name: 'Contrabandear itens', min: 400, max: 1200, risk: 0.5 },
-  { name: 'Falsificar documentos', min: 600, max: 1800, risk: 0.65 }
+  { name: 'Assaltar uma loja', min: 100, max: 400, risk: 0.55 },
+  { name: 'Roubar um carro', min: 250, max: 750, risk: 0.65 },
+  { name: 'Invadir uma casa', min: 150, max: 500, risk: 0.60 },
+  { name: 'Hackear um banco', min: 500, max: 1500, risk: 0.75 },
+  { name: 'Contrabandear itens', min: 200, max: 600, risk: 0.55 },
+  { name: 'Falsificar documentos', min: 300, max: 900, risk: 0.70 }
 ];
 
 module.exports = {
@@ -53,15 +53,32 @@ module.exports = {
     if (chance > crime.risk) {
       // Sucesso
       const ganho = random(crime.min, crime.max);
-      userData.coins += ganho;
+      
+      // Aplica taxa diária progressiva
+      const taxResult = applyDailyTax(userData, ganho);
+      const ganhoFinal = taxResult.finalGanho;
+      
+      userData.coins += ganhoFinal;
       economy.set(key, userData);
 
+      let description = `> Você conseguiu **${crime.name.toLowerCase()}** com sucesso!\n\n` +
+        `**- Crime:** ${crime.name}\n` +
+        `**- Ganhou:** \`${ganho}\` coins\n`;
+      
+      if (taxResult.taxAmount > 0) {
+        description += `**- Taxa:** \`-${taxResult.taxAmount}\` coins (${Math.floor(taxResult.taxPercent * 100)}%)\n`;
+        description += `**- Final:** \`${ganhoFinal}\` coins\n`;
+      }
+      
+      description += `**- Saldo atual:** \`${userData.coins}\` coins`;
+      
+      if (taxResult.taxPercent > 0) {
+        description += `\n\n💰 *Ganhos diários: ${userData.dailyEarnings.toLocaleString()} coins*`;
+      }
+      
       const embed = createEmbed(
         'Crime Bem-Sucedido',
-        `> Você conseguiu **${crime.name.toLowerCase()}** com sucesso!\n\n` +
-        `**- Crime:** ${crime.name}\n` +
-        `**- Ganhou:** \`${ganho}\` coins\n` +
-        `**- Saldo atual:** \`${userData.coins}\` coins`
+        description
       );
       embed.setColor('#00FF00');
       addServerFooter(embed, interaction.guild);

@@ -162,10 +162,54 @@ function getLuckBoost(inventory) {
   let boost = 0;
   
   if (hasActiveItem(inventory, 'lucky_charm')) {
-    boost += 0.15; // +15% de chance
+    boost += 0.10; // +10% de chance (reduzido de 15%)
   }
   
   return boost;
+}
+
+// Calcula taxa progressiva baseada em ganhos diários
+function getDailyTax(dailyEarnings) {
+  if (dailyEarnings > 1000000) return 0.60; // 60% de taxa acima de 1M
+  if (dailyEarnings > 500000) return 0.50;  // 50% de taxa acima de 500k
+  if (dailyEarnings > 250000) return 0.40;  // 40% de taxa acima de 250k
+  if (dailyEarnings > 100000) return 0.30;  // 30% de taxa acima de 100k
+  if (dailyEarnings > 50000) return 0.20;   // 20% de taxa acima de 50k
+  if (dailyEarnings > 25000) return 0.10;   // 10% de taxa acima de 25k
+  return 0; // Sem taxa para iniciantes
+}
+
+// Aplica taxa e atualiza ganhos diários
+function applyDailyTax(userData, ganho) {
+  const now = Date.now();
+  const oneDayAgo = now - (24 * 60 * 60 * 1000);
+  
+  // Reseta ganhos diários se passou 24h
+  if (!userData.dailyEarningsReset || userData.dailyEarningsReset < oneDayAgo) {
+    userData.dailyEarnings = 0;
+    userData.dailyEarningsReset = now;
+  }
+  
+  // Calcula taxa baseada nos ganhos atuais
+  const tax = getDailyTax(userData.dailyEarnings || 0);
+  const taxAmount = Math.floor(ganho * tax);
+  const finalGanho = ganho - taxAmount;
+  
+  // Atualiza ganhos diários
+  userData.dailyEarnings = (userData.dailyEarnings || 0) + finalGanho;
+  
+  return { finalGanho, taxAmount, taxPercent: tax };
+}
+
+// Reseta ganhos diários se necessário
+function checkDailyReset(userData) {
+  const now = Date.now();
+  const oneDayAgo = now - (24 * 60 * 60 * 1000);
+  
+  if (!userData.dailyEarningsReset || userData.dailyEarningsReset < oneDayAgo) {
+    userData.dailyEarnings = 0;
+    userData.dailyEarningsReset = now;
+  }
 }
 
 module.exports = {
@@ -184,5 +228,8 @@ module.exports = {
   cleanExpiredItems,
   getCoinMultiplier,
   getXPMultiplier,
-  getLuckBoost
+  getLuckBoost,
+  getDailyTax,
+  applyDailyTax,
+  checkDailyReset
 };

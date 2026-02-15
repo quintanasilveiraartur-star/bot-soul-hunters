@@ -1,6 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { economy, inventory, notifications } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, random, getCoinMultiplier, cleanExpiredItems } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, random, getCoinMultiplier, cleanExpiredItems, applyDailyTax } = require('../../utils/helpers');
 const { getTrabalho } = require('../../utils/contentData');
 
 module.exports = {
@@ -63,7 +63,11 @@ module.exports = {
     const ganhoBase = ganho;
     ganho = Math.floor(ganho * multiplier);
     
-    userData.coins += ganho;
+    // Aplica taxa diária progressiva
+    const taxResult = applyDailyTax(userData, ganho);
+    const ganhoFinal = taxResult.finalGanho;
+    
+    userData.coins += ganhoFinal;
     userData.lastWork = now;
     economy.set(key, userData);
 
@@ -75,7 +79,16 @@ module.exports = {
       description += `Bonus: +${Math.floor(ganhoBase * (multiplier - 1))} coins (${Math.floor((multiplier - 1) * 100)}%)\n`;
     }
     
+    if (taxResult.taxAmount > 0) {
+      description += `Taxa: -${taxResult.taxAmount} coins (${Math.floor(taxResult.taxPercent * 100)}%)\n`;
+      description += `Final: ${ganhoFinal} coins\n`;
+    }
+    
     description += `Saldo Total: ${userData.coins} coins\n` + '```';
+    
+    if (taxResult.taxPercent > 0) {
+      description += `\n💰 *Ganhos diários: ${userData.dailyEarnings.toLocaleString()} coins*`;
+    }
 
     const embed = createEmbed('Trabalho Realizado', description);
     embed.setThumbnail(interaction.user.displayAvatarURL());
