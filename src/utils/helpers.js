@@ -101,6 +101,23 @@ function randomChoice(array) {
   return array[random(0, array.length - 1)];
 }
 
+// Formata números grandes (1000 = 1k, 1000000 = 1m, etc)
+function formatNumber(num) {
+  if (num >= 1000000000000) {
+    return (num / 1000000000000).toFixed(1).replace(/\.0$/, '') + 't'; // trilhão
+  }
+  if (num >= 1000000000) {
+    return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'b'; // bilhão
+  }
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'm'; // milhão
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k'; // mil
+  }
+  return num.toString();
+}
+
 // Aguarda tempo em ms
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
