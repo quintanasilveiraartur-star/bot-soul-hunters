@@ -244,6 +244,7 @@ module.exports = {
   replySuccess,
   random,
   randomChoice,
+  formatNumber,
   sleep,
   hasActiveItem,
   cleanExpiredItems,

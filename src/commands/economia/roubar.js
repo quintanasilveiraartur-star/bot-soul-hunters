@@ -1,5 +1,5 @@
 const { economy, inventory } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, hasActiveItem, cleanExpiredItems } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, hasActiveItem, cleanExpiredItems, formatNumber } = require('../../utils/helpers');
 
 module.exports = {
   data: {
@@ -43,7 +43,7 @@ module.exports = {
       const embed = createEmbed(
         'Saldo Insuficiente',
         `> Você precisa ter no mínimo **500 coins** para roubar!\n\n` +
-        `**• Seu saldo:** \`${userData.coins}\` coins\n` +
+        `**• Seu saldo:** \`${formatNumber(userData.coins)}\` coins\n` +
         `**• Necessário:** \`500\` coins\n` +
         `**• Faltam:** \`${500 - userData.coins}\` coins`
       );
@@ -53,7 +53,7 @@ module.exports = {
     }
 
     if (targetData.coins < 100) {
-      return replyError(interaction, 'Este usuário não tem coins suficientes para roubar (mínimo: 100)');
+      return replyError(interaction, `Este usuário tem apenas ${formatNumber(targetData.coins)} coins (mínimo: 100)`);
     }
 
     // Verifica proteção anti-roubo do alvo
@@ -96,8 +96,8 @@ module.exports = {
 
       const embed = createEmbed(
         'Roubo Bem-Sucedido',
-        `Você roubou **${roubado} coins** de ${target.username} 💰\n\n` +
-        `**Seu saldo:** ${userData.coins} coins` +
+        `Você roubou **${formatNumber(roubado)} coins** de ${target.username} 💰\n\n` +
+        `**Seu saldo:** ${formatNumber(userData.coins)} coins` +
         (luckBoost > 0 ? '\n\n🍀 *Amuleto da Sorte ativo!*' : '')
       );
       addServerFooter(embed, interaction.guild);
@@ -113,8 +113,8 @@ module.exports = {
       const embed = createEmbed(
         'Roubo Fracassado',
         `Você foi pego tentando roubar!\n` +
-        `**Multa:** ${multa} coins\n\n` +
-        `**Seu saldo:** ${userData.coins} coins`
+        `**Multa:** ${formatNumber(multa)} coins\n\n` +
+        `**Seu saldo:** ${formatNumber(userData.coins)} coins`
       );
       addServerFooter(embed, interaction.guild);
 

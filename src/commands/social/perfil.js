@@ -1,5 +1,5 @@
 const { economy, xp, marriages, inventory } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, hasActiveItem, cleanExpiredItems } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, hasActiveItem, cleanExpiredItems, formatNumber } = require('../../utils/helpers');
 
 const EMPRESAS = {
   banca_jornal: { name: 'Banca de Jornal' },
@@ -93,7 +93,7 @@ module.exports = {
       `Título: ${title}\n` +
       `Nível: ${xpData.level}\n` +
       `XP: ${xpData.xp}\n` +
-      `Coins: ${economyData.coins}\n` +
+      `Coins: ${formatNumber(economyData.coins)}\n` +
       `${statusLabel}: ${partnerText}\n` +
       `Dono de: ${businessText}\n` +
       `Itens: ${userInventory.length}\n` +

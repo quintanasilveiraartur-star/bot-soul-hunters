@@ -1,5 +1,5 @@
 const { economy } = require('../utils/db');
-const { createEmbed } = require('../utils/helpers');
+const { createEmbed, formatNumber } = require('../utils/helpers');
 
 // Cobra taxa de custo de vida de todos os usuários às 00:00 de São Paulo
 async function chargeDailyTax(client) {
@@ -36,9 +36,9 @@ async function chargeDailyTax(client) {
             '💸 Custo de Vida Diário',
             `> **Atenção!** A taxa diária de custo de vida foi cobrada.\n\n` +
             `# 💰 Detalhes da Cobrança\n\n` +
-            `**• Saldo anterior:** \`${oldBalance.toLocaleString()}\` coins\n` +
-            `**• Taxa cobrada:** \`${taxAmount.toLocaleString()}\` coins **(25%)**\n` +
-            `**• Saldo atual:** \`${userData.coins.toLocaleString()}\` coins\n\n` +
+            `**• Saldo anterior:** \`${formatNumber(oldBalance)}\` coins\n` +
+            `**• Taxa cobrada:** \`${formatNumber(taxAmount)}\` coins **(25%)**\n` +
+            `**• Saldo atual:** \`${formatNumber(userData.coins)}\` coins\n\n` +
             `> Esta taxa é cobrada **diariamente às 00:00** (horário de São Paulo) para simular custos de vida.\n\n` +
             `**- Mantenha-se ativo para recuperar seus coins!**\n` +
             `**- Use /trabalhar, /daily, /weekly e outros comandos.**`,
@@ -56,7 +56,7 @@ async function chargeDailyTax(client) {
   }
   
   console.log(`✅ Taxa diária cobrada de ${totalCharged}/${totalUsers} usuários`);
-  console.log(`💰 Total arrecadado: ${totalAmount.toLocaleString()} coins`);
+  console.log(`💰 Total arrecadado: ${formatNumber(totalAmount)} coins`);
 }
 
 // Agenda a cobrança diária às 00:00 de São Paulo

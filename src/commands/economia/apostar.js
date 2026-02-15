@@ -1,6 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { economy, inventory, notifications, forcedLosses } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, cleanExpiredItems, applyDailyTax } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, replyError, getLuckBoost, cleanExpiredItems, applyDailyTax, formatNumber } = require('../../utils/helpers');
 
 module.exports = {
   data: {
@@ -113,22 +113,22 @@ module.exports = {
       userData.lastBet = now;
       economy.set(key, userData);
 
-      let description = `**Apostou:** \`${quantia} coins\`\n\n` +
+      let description = `**Apostou:** \`${formatNumber(quantia)} coins\`\n\n` +
         '```diff\n' +
         `+ ${resultado}\n` +
-        `+ ${ganho} coins\n`;
+        `+ ${formatNumber(ganho)} coins\n`;
       
       if (taxResult.taxAmount > 0) {
-        description += `- Taxa: ${taxResult.taxAmount} coins (${Math.floor(taxResult.taxPercent * 100)}%)\n`;
-        description += `+ Final: ${ganhoFinal} coins\n`;
+        description += `- Taxa: ${formatNumber(taxResult.taxAmount)} coins (${Math.floor(taxResult.taxPercent * 100)}%)\n`;
+        description += `+ Final: ${formatNumber(ganhoFinal)} coins\n`;
       }
       
       description += '```\n' +
-        `**Saldo atual:** \`${userData.coins} coins\`` +
+        `**Saldo atual:** \`${formatNumber(userData.coins)} coins\`` +
         (luckBoost > 0 ? '\n\n🍀 *Amuleto da Sorte ativo!*' : '');
       
       if (taxResult.taxPercent > 0) {
-        description += `\n\n💰 *Ganhos diários: ${userData.dailyEarnings.toLocaleString()} coins*`;
+        description += `\n\n💰 *Ganhos diários: ${formatNumber(userData.dailyEarnings)} coins*`;
       }
       
       const embed = createEmbed('Aposta', description);
@@ -157,12 +157,12 @@ module.exports = {
 
       const embed = createEmbed(
         'Aposta',
-        `**Apostou:** \`${quantia} coins\`\n\n` +
+        `**Apostou:** \`${formatNumber(quantia)} coins\`\n\n` +
         '```diff\n' +
         `${ganho > 0 ? '+' : '-'} ${resultado}\n` +
-        `${ganho > 0 ? '+' : '-'} ${Math.abs(ganho)} coins\n` +
+        `${ganho > 0 ? '+' : '-'} ${formatNumber(Math.abs(ganho))} coins\n` +
         '```\n' +
-        `**Saldo atual:** \`${userData.coins} coins\`` +
+        `**Saldo atual:** \`${formatNumber(userData.coins)} coins\`` +
         (luckBoost > 0 ? '\n\n🍀 *Amuleto da Sorte ativo!*' : '')
       );
       embed.setThumbnail(interaction.user.displayAvatarURL());

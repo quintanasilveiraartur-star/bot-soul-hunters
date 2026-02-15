@@ -1,5 +1,5 @@
 const { economy } = require('../../utils/db');
-const { createEmbed, addServerFooter, makeKey, formatTimeLeft } = require('../../utils/helpers');
+const { createEmbed, addServerFooter, makeKey, formatTimeLeft, formatNumber } = require('../../utils/helpers');
 
 module.exports = {
   data: {
@@ -32,14 +32,14 @@ module.exports = {
       nextLivingCostInfo = `\n💸 Próximo custo de vida: ${formatTimeLeft(timeUntilNext)}`;
     } else {
       const estimatedCost = Math.floor(userData.coins * 0.25);
-      nextLivingCostInfo = `\n💸 Custo de vida pendente: ${estimatedCost} coins (25%)`;
+      nextLivingCostInfo = `\n💸 Custo de vida pendente: ${formatNumber(estimatedCost)} coins (25%)`;
     }
 
     const embed = createEmbed(
       'Saldo',
       `**Usuário:** \`${user.username}\`\n\n` +
       '```yaml\n' +
-      `Coins: ${userData.coins}\n` +
+      `Coins: ${formatNumber(userData.coins)}\n` +
       '```' +
       nextLivingCostInfo
     );
