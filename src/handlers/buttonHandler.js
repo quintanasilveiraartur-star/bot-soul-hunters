@@ -10,6 +10,56 @@ module.exports = {
   async handleButton(interaction) {
     const { customId } = interaction;
 
+    // Handler de quiz
+    if (customId.startsWith('quiz_')) {
+      const quizCommand = require('../commands/diversao/quiz');
+      const parts = customId.split('_');
+      const userId = parts[1];
+      const opcaoIndex = parseInt(parts[2]);
+      
+      if (interaction.user.id !== userId) {
+        return interaction.reply({ content: 'Este quiz não é seu!', ephemeral: true });
+      }
+      
+      const quizData = quizCommand.activeQuizzes.get(userId);
+      if (!quizData) {
+        return interaction.reply({ content: 'Quiz expirado! Use `/quiz` novamente.', ephemeral: true });
+      }
+      
+      const respostaEscolhida = quizData.opcoes[opcaoIndex];
+      const acertou = respostaEscolhida === quizData.resposta;
+      
+      // Remove o quiz ativo
+      quizCommand.activeQuizzes.delete(userId);
+      
+      if (acertou) {
+        const embed = createEmbed(
+          '✅ Resposta Correta!',
+          `> **Parabéns!** Você acertou a resposta!\n\n` +
+          `### 🎯 Resposta Certa\n\n` +
+          `**- Sua resposta:** \`${respostaEscolhida}\`\n` +
+          `**- Status:** Correto ✅\n\n` +
+          `> Continue jogando para testar seus conhecimentos!`,
+          '#00FF00'
+        );
+        addServerFooter(embed, interaction.guild);
+        return interaction.update({ embeds: [embed], components: [] });
+      } else {
+        const embed = createEmbed(
+          '❌ Resposta Errada',
+          `> **Ops!** Você errou a resposta.\n\n` +
+          `### 📝 Detalhes\n\n` +
+          `**- Sua resposta:** \`${respostaEscolhida}\`\n` +
+          `**- Resposta correta:** \`${quizData.resposta}\`\n` +
+          `**- Status:** Incorreto ❌\n\n` +
+          `> Tente novamente com \`/quiz\`!`,
+          '#FF0000'
+        );
+        addServerFooter(embed, interaction.guild);
+        return interaction.update({ embeds: [embed], components: [] });
+      }
+    }
+
     // Handlers de investimento em cripto
     if (customId.startsWith('invest_')) {
       const parts = customId.split('_');
