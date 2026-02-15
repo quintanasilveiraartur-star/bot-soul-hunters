@@ -9,7 +9,9 @@ async function chargeDailyTax(client) {
   let totalCharged = 0;
   let totalAmount = 0;
   
-  for (const [key, userData] of economy.entries()) {
+  const allData = economy.read();
+  
+  for (const [key, userData] of Object.entries(allData)) {
     if (!userData.coins || userData.coins <= 0) continue;
     
     totalUsers++;
